@@ -1,14 +1,20 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [data, setData] = useState({
     temperature: "25°C",
     status: "Active",
     uptime: "2 days, 3 hours",
   });
 
-  // Simulate fetching data from Raspberry Pi API
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/signin");
+  };
+
   useEffect(() => {
     setTimeout(() => {
       setData({
@@ -16,7 +22,7 @@ export default function Dashboard() {
         status: "Active",
         uptime: "2 days, 5 hours",
       });
-    }, 3000); // Simulate an API call
+    }, 3000); 
   }, []);
 
   return (
@@ -28,11 +34,9 @@ export default function Dashboard() {
           <li className="mb-4">
             <a href="#" className="hover:bg-gray-700 p-2 rounded-md">Home</a>
           </li>
+          
           <li className="mb-4">
-            <a href="#" className="hover:bg-gray-700 p-2 rounded-md">Settings</a>
-          </li>
-          <li className="mb-4">
-            <a href="#" className="hover:bg-gray-700 p-2 rounded-md">Logout</a>
+            <a href="#" onClick={handleLogout} className="hover:bg-gray-700 p-2 rounded-md">Logout</a>
           </li>
         </ul>
       </div>
