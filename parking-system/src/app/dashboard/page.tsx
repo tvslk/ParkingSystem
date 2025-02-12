@@ -36,7 +36,7 @@ export default function Dashboard() {
             <a href="#" className="hover:bg-gray-700 p-2 rounded-md">Home</a>
           </li>
           <li className="mb-4">
-            <a href="#" onClick={() => { localStorage.removeItem("token"); router.push("/signin"); }} className="hover:bg-gray-700 p-2 rounded-md">Logout</a>
+            <a href="#" onClick={() => { localStorage.removeItem("token"); router.push("/signin"); }} className="hover:bg-gray-700 p-2 rounded-md" id = "logout">Logout</a>
           </li>
         </ul>
       </div>
