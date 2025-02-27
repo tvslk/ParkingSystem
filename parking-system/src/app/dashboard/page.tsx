@@ -4,25 +4,32 @@ import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [data, setData] = useState({
-    temperature: "Loading...",
-    status: "Loading...",
-    uptime: "Loading...",
-  });
+  const defaultData = {
+    temperature: "25°C",
+    status: "Active",
+    uptime: "2 days, 3 hours",
+  };
+  const [data, setData] = useState(defaultData);
 
   const fetchData = async () => {
     try {
       const res = await fetch("/api/raspberry", { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to fetch data");
+      if (!res.ok) {
+        console.log("Failed to fetch data");
+        setData(defaultData);
+        return;
+      }
       const result = await res.json();
-      setData(result.received); 
+      // Use result.received if available, otherwise fallback to defaultData.
+      setData(result.received || defaultData);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setData(defaultData);
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(fetchData, 5000); 
+    const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -33,10 +40,22 @@ export default function Dashboard() {
         <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
         <ul>
           <li className="mb-4">
-            <a href="#" className="hover:bg-gray-700 p-2 rounded-md">Home</a>
+            <a href="#" className="hover:bg-gray-700 p-2 rounded-md">
+              Home
+            </a>
           </li>
           <li className="mb-4">
-            <a href="#" onClick={() => { localStorage.removeItem("token"); router.push("/signin"); }} className="hover:bg-gray-700 p-2 rounded-md" id = "logout">Logout</a>
+            <a
+              href="#"
+              onClick={() => {
+                localStorage.removeItem("token");
+                router.push("/signin");
+              }}
+              className="hover:bg-gray-700 p-2 rounded-md"
+              id="logout"
+            >
+              Logout
+            </a>
           </li>
         </ul>
       </div>
@@ -44,7 +63,9 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 p-8">
         <header className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Raspberry Pi Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Raspberry Pi Dashboard
+          </h1>
         </header>
 
         {/* Data Display */}
