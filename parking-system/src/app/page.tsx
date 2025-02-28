@@ -1,4 +1,4 @@
-import MainPageButtons from './components/MainPageButtons/MainPageButtons';
+import MainPageButtons from './components/MainPageButtons';
 
 export default function Home() {
   return (
