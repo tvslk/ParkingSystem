@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const isAdmin = email === "admin@gl.sk";
-    const token = jwt.sign({ email, admin: isAdmin }, KEY, { expiresIn: "1h" });
+    const token = jwt.sign({ email, admin: isAdmin, fullName: rows[0].full_name }, KEY, { expiresIn: "1h" });
 
     return new Response(JSON.stringify({ token }), { status: 200 });
   } catch (err: any) {
