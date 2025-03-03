@@ -103,7 +103,7 @@ export default function SignIn() {
           </span>
 
           <a
-            href="/signup"
+            href="/register"
             className="mx-2 text-sm font-bold text-zinc-600 hover:underline"
           >
             Register
