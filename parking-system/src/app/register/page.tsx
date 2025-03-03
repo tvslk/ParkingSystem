@@ -10,37 +10,35 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+ const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+  if (password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fullName, email, password }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error || "Registration failed");
       return;
     }
+    
+    router.push('/signin');
+  } catch (err) {
+    setError("An error occurred. Please try again.");
+  }
 
-    try {
-      const response = await fetch("/api/login", { // Adjust endpoint if needed (like /api/register)
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fullName, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
-      console.log("Token received:", data.token);
-      localStorage.setItem("token", data.token);
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
+};
 
  return (
      <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-6 py-12 lg:px-8">
@@ -98,7 +96,7 @@ export default function Register() {
              <div className="w-full mt-4">
                <input
                  className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-500 bg-white border rounded-lg"
-                 type="confirmPassword"
+                 type="password"
                  placeholder="Confirm password"
                  aria-label="Confirm password"
                  required

@@ -3,13 +3,37 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthGuard from './AuthGuard';
+import { useEffect, useState } from 'react';
 
 const Sidebar = () => {
   const router = useRouter();
+  const [fullName, setFullName] = useState("User");
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const decoded = JSON.parse(jsonPayload);
+      setFullName(decoded.fullName || "User");
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      setFullName("User");
+    }
+  }
+}, []);
 
   const handleLogout = async () => {
     try {
       localStorage.removeItem("token");
+      localStorage.removeItem("fullName");
       router.push("/signin");
       setTimeout(() => {
         window.location.reload();
@@ -83,7 +107,7 @@ const Sidebar = () => {
               className="object-cover mx-2 rounded-full h-9 w-9"
               src="/avatar.png"
               alt="Parking system user" />
-            <span className="mx-2 font-semibold text-gray-500">User</span>
+            <span className="mx-2 font-semibold text-gray-500">{fullName}</span>
           </Link>
         </div>
       </div>
