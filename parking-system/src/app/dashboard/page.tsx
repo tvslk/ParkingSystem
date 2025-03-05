@@ -2,18 +2,32 @@
 import useSWR from "swr";
 import Sidebar from "../components/Sidebar";
 import InterfaceButton from "../components/InterfaceButtons";
+import { useDecodedToken } from "../hooks/DecodedToken";
 
-const fetcher = (url: string) => fetch(url, { cache: "no-store" }).then((res) => res.json());
+const fetcher = (url: string) =>
+  fetch(url, { cache: "no-store" }).then((res) => res.json());
 
-const formatSpotId = (id: number | string) => "PS" + id.toString().padStart(3, "0");
+const formatSpotId = (id: number | string) =>
+  "PS" + id.toString().padStart(3, "0");
 
 const handleRedirect = (url: string) => {
   window.location.href = url;
 };
 
 export default function Dashboard() {
-  const { data: countsData, error: countsError } = useSWR("/api/raspberry?type=counts", fetcher, { refreshInterval: 5000 });
-  const { data: visitsData, error: visitsError } = useSWR("/api/latest-visits", fetcher, { refreshInterval: 5000 });
+  const decoded = useDecodedToken();
+  const isAdmin = decoded?.admin || false;
+  
+  const { data: countsData, error: countsError } = useSWR(
+    "/api/raspberry?type=counts",
+    fetcher,
+    { refreshInterval: 5000 }
+  );
+  const { data: visitsData, error: visitsError } = useSWR(
+    "/api/latest-visits",
+    fetcher,
+    { refreshInterval: 5000 }
+  );
 
   const counts = countsData || { available: 0, occupied: 0 };
 
@@ -38,7 +52,7 @@ export default function Dashboard() {
         {/* Grid Layout */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* Available/Occupied Spots Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow p-6 lg:col-span-1">
+          <div className="bg-zinc-100 rounded-2xl shadow-md p-6 lg:col-span-1">
             <div className="flex flex-col">
               <div className="text-6xl font-bold text-emerald-700 mb-2">
                 {counts.available}
@@ -56,7 +70,7 @@ export default function Dashboard() {
           </div>
 
           {/* Parking Lot Image Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow p-4 lg:col-span-2 flex flex-col items-center justify-center">
+          <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col items-center justify-center">
             <img
               src="/map.png"
               alt="Parking Lot"
@@ -65,39 +79,54 @@ export default function Dashboard() {
             <InterfaceButton label="Show parking lot" />
           </div>
 
-          {/* Latest Visits Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow p-6 lg:col-span-2">
+          {/* Latest Visits / Latest Parking Spot Updates Card */}
+          <div
+            className={`bg-zinc-100 rounded-2xl shadow-md p-6 ${
+              isAdmin ? "lg:col-span-3" : "lg:col-span-2"
+            }`}
+          >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold text-gray-500">
-                Latest visits
+                {isAdmin
+                  ? "Latest parking spot updates"
+                  : "Latest visits"}
               </h2>
-              <InterfaceButton onClick={() => handleRedirect("/latest-visits")} label="View all" />
+              <InterfaceButton
+                onClick={() => handleRedirect("/latest-visits")}
+                label="View all"
+              />
             </div>
             <ul>
               {visitsData && visitsData.length > 0 ? (
-                visitsData.slice(0, 5).map((visit: any) => (
-                  <li key={visit.id || visit.created_at} className="py-2 border-b text-gray-500">
-                    {new Date(visit.created_at).toLocaleString()} - {formatSpotId(visit.spot_id)}
+                visitsData.slice(0, 5).map((item: any) => (
+                  <li
+                    key={item.id || item.created_at}
+                    className="py-2 border-b text-gray-500"
+                  >
+                    {new Date(item.created_at).toLocaleString()} -{" "}
+                    {formatSpotId(item.spot_id)}
                   </li>
                 ))
               ) : (
-                <li className="py-2 text-gray-500">No visits available.</li>
+                <li className="py-2 text-gray-500">No data available.</li>
               )}
             </ul>
           </div>
 
-          {/* QR Code Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow p-6 flex flex-col items-center lg:col-span-1">
-            <h2 className="text-sm mb-2 text-gray-500">
-              <span className="font-bold">QR code</span>
-              <span className="font-light"> is valid until </span>
-              <span className="font-bold">30.2.2025</span>
-            </h2>
-            <div className="w-48 h-48 bg-gray-200 rounded-md mb-4">
-              {/* Placeholder for QR Code */}
+          {/* QR Code Card (only displayed for non-admin users) */}
+          {!isAdmin && (
+            <div className="bg-zinc-100 rounded-2xl shadow p-6 flex flex-col items-center lg:col-span-1">
+              <h2 className="text-sm mb-2 text-gray-500">
+                <span className="font-bold">QR code</span>
+                <span className="font-light"> is valid until </span>
+                <span className="font-bold">30.2.2025</span>
+              </h2>
+              <div className="w-48 h-48 bg-gray-200 rounded-md mb-4">
+                {/* Placeholder for QR Code */}
+              </div>
+              <InterfaceButton label="Regenerate" />
             </div>
-            <InterfaceButton label="Regenerate" />
-          </div>
+          )}
         </div>
         <footer className="mt-8 p-4 text-center text-gray-500">
           © 2025 Parking System. All rights reserved.
