@@ -5,13 +5,23 @@ import InterfaceButton from "../components/InterfaceButtons";
 
 const fetcher = (url: string) => fetch(url, { cache: "no-store" }).then((res) => res.json());
 
+const formatSpotId = (id: number | string) => "PS" + id.toString().padStart(3, "0");
+
+const handleRedirect = (url: string) => {
+  window.location.href = url;
+};
+
 export default function Dashboard() {
-  const { data, error } = useSWR("/api/raspberry", fetcher, { refreshInterval: 5000 });
+  const { data: countsData, error: countsError } = useSWR("/api/raspberry?type=counts", fetcher, { refreshInterval: 5000 });
+  const { data: visitsData, error: visitsError } = useSWR("/api/latest-visits", fetcher, { refreshInterval: 5000 });
 
-  const counts = data || { available: 0, occupied: 0 };
+  const counts = countsData || { available: 0, occupied: 0 };
 
-  if (error) {
-    console.error("Error fetching data:", error);
+  if (countsError) {
+    console.error("Error fetching counts:", countsError);
+  }
+  if (visitsError) {
+    console.error("Error fetching visits:", visitsError);
   }
 
   return (
@@ -61,21 +71,18 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold text-gray-500">
                 Latest visits
               </h2>
-              <InterfaceButton label="View all" />
+              <InterfaceButton onClick={() => handleRedirect("/latest-visits")} label="View all" />
             </div>
             <ul>
-              <li className="py-2 border-b text-gray-500">
-                19.1.2025 12.39 - prítomnosť
-              </li>
-              <li className="py-2 border-b text-gray-500">
-                28.1.2025 11:39 - 29.1.2025 07:49
-              </li>
-              <li className="py-2 border-b text-gray-500">
-                28.1.2025 11:39 - 29.1.2025 07:49
-              </li>
-              <li className="py-2 text-gray-500">
-                28.1.2025 11:39 - 29.1.2025 07:49
-              </li>
+              {visitsData && visitsData.length > 0 ? (
+                visitsData.slice(0, 5).map((visit: any) => (
+                  <li key={visit.id || visit.created_at} className="py-2 border-b text-gray-500">
+                    {new Date(visit.created_at).toLocaleString()} - {formatSpotId(visit.spot_id)}
+                  </li>
+                ))
+              ) : (
+                <li className="py-2 text-gray-500">No visits available.</li>
+              )}
             </ul>
           </div>
 
