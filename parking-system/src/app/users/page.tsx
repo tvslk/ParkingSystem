@@ -52,7 +52,7 @@ export default function UsersPage() {
         </div>
 
         {/* Footer always at the bottom */}
-        <footer className="mt-8 p-4 text-center text-gray-500">
+        <footer className="mt-4 flex-shrink-0 text-center text-gray-500">
           © 2025 Parking System. All rights reserved.
         </footer>
       </div>

@@ -39,20 +39,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content as a flex column */}
-      <div className="flex-1 p-8 flex flex-col min-h-0">
-        {/* Header that always stays at the top */}
+      <div className="flex-1 p-8 flex flex-col">
+        {/* Header */}
         <header className="mb-4 flex-shrink-0">
           <h1 className="text-3xl font-bold text-gray-500">Dashboard</h1>
         </header>
 
-        {/* Grid container that grows and scrolls if needed */}
-        <div className="flex-grow overflow-auto">
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {/* Content container stretching full height */}
+        <div className="flex-grow flex flex-col overflow-auto">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flex-grow pb-8">
             {/* Available/Occupied Spots Card */}
             <div className="bg-zinc-100 rounded-2xl shadow-md p-6 lg:col-span-1">
               <div className="flex flex-col">
@@ -72,13 +72,17 @@ export default function Dashboard() {
             </div>
 
             {/* Parking Lot Image Card */}
-            <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col items-center justify-center">
+            <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col items-center">
+              <div className="flex-grow flex flex-col items-center justify-center w-full">
               <img
                 src="/map.png"
                 alt="Parking Lot"
                 className="rounded-lg mb-4 w-full object-cover h-48"
               />
+              </div>
+              <div className="w-full flex justify-center mt-4">
               <InterfaceButton label="Show parking lot" />
+              </div>
             </div>
 
             {/* Latest Visits / Updates Card */}
@@ -115,22 +119,26 @@ export default function Dashboard() {
 
             {/* QR Code Card (only for non-admin) */}
             {!isAdmin && (
-              <div className="bg-zinc-100 rounded-2xl shadow-md p-6 flex flex-col items-center lg:col-span-1">
-                <h2 className="text-sm mb-2 text-gray-500">
+              <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-1 flex flex-col h-full">
+                <h2 className="text-sm mb-2 text-center text-gray-500">
                   <span className="font-bold">QR code</span>
                   <span className="font-light"> is valid until </span>
                   <span className="font-bold">30.2.2025</span>
                 </h2>
-                <div className="w-48 h-48 bg-gray-200 rounded-md mb-4">
-                  {/* Placeholder for QR Code */}
+                <div className="flex-grow flex items-center justify-center w-full">
+                  <div className="w-4/5 max-w-[200px] aspect-square bg-gray-200 rounded-md">
+                    {/* Placeholder for QR Code */}
+                  </div>
                 </div>
-                <InterfaceButton label="Regenerate" />
+                <div className="mt-4 w-full flex justify-center">
+                  <InterfaceButton label="Regenerate" />
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Footer always at the bottom of main content */}
+        {/* Footer */}
         <footer className="mt-4 flex-shrink-0 text-center text-gray-500">
           © 2025 Parking System. All rights reserved.
         </footer>
