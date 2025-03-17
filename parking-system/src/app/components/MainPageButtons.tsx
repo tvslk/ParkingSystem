@@ -6,20 +6,20 @@ import Link from "next/link";
 export default function MainPageButtons() {
     return (
       <div className="flex gap-4">
-        <Link
+        <a
           id="signin"
           className="px-6 py-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-zinc-400 rounded-lg hover:bg-zinc-300 focus:outline-none "
-          href="/signin"
-        >
+          href="/api/auth/login?prompt=login&returnTo=/dashboard"
+          >
           Sign in
-        </Link>
-        <Link
+        </a>
+        <a
           id="register"
           className="px-6 py-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-zinc-600 rounded-lg hover:bg-zinc-500 focus:outline-none "
-          href="/register"
-        >
+          href="/api/auth/signup?prompt=signup&returnTo=/login"
+          >
           Register
-        </Link>
+        </a>
      </div>
     );
   }

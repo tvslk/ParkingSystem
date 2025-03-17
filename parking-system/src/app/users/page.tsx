@@ -2,12 +2,24 @@
 import ListWindow from "../components/ListWindow";
 import Sidebar from "../components/Sidebar";
 import useSWR from "swr";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { useDecodedToken } from "../hooks/DecodedToken";
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 
 export default function UsersPage() {
+    const { user, isLoading } = useUser();
+  
+    if (isLoading) {
+      return <div>Loading...</div>;
+    }
+  
+    if (!user) {
+      window.location.href = '/api/auth/login';
+      return null; 
+    }
+  
   // Call hooks unconditionally.
   const decoded = useDecodedToken();
   const { data: usersData, error } = useSWR("/api/users", fetcher);
@@ -50,11 +62,6 @@ export default function UsersPage() {
             />
           </div>
         </div>
-
-        {/* Footer always at the bottom */}
-        <footer className="mt-4 flex-shrink-0 text-center text-gray-500">
-          © 2025 Parking System. All rights reserved.
-        </footer>
       </div>
     </div>
   );

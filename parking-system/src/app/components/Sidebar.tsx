@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AuthGuard from './AuthGuard';
 import { useEffect, useState } from 'react';
 
 const Sidebar = () => {
@@ -47,7 +46,6 @@ const Sidebar = () => {
 
 
   return (
-    <AuthGuard>
     <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-zinc-100 border-r shadow-xl">
     <Link href="/" className="block"> {/* Make the Link a block-level element */}
       <img className="w-full h-6 sm:h-7" src="/ps-gray.svg" alt="Logo" />
@@ -79,8 +77,8 @@ const Sidebar = () => {
             </svg>
             <span className="mx-4 font-medium">Users</span>
           </Link>)}
-          <button
-  onClick={handleLogout}
+          <a
+  href="/api/auth/logout"
   className="flex w-full items-center px-4 py-2 mt-5 text-gray-500 transition-colors duration-300 transform rounded-md hover:bg-zinc-200 hover:text-gray-700 focus:outline-none focus:bg-zinc-200 focus:text-gray-700"
 >
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -100,7 +98,7 @@ const Sidebar = () => {
     />
   </svg>
   <span className="mx-4 font-medium">Log out</span>
-</button>
+</a>
         </nav>
 
         <div className="border-t pt-4"> {/* Added a divider for visual separation */}
@@ -114,7 +112,6 @@ const Sidebar = () => {
         </div>
       </div>
     </aside>
-    </AuthGuard>
   );
 };
 

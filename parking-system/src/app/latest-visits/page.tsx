@@ -3,6 +3,7 @@
 import ListWindow from "../components/ListWindow";
 import Sidebar from "../components/Sidebar";
 import useSWR from "swr";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { useDecodedToken } from "../hooks/DecodedToken";
 
 const fetcher = (url: string) =>
@@ -15,6 +16,17 @@ const formatVisit = (visit: any) =>
   `${new Date(visit.created_at).toLocaleString()} - ${formatSpotId(visit.spot_id)}`;
 
 export default function LatestVisits() {
+    const { user, isLoading } = useUser();
+  
+    if (isLoading) {
+      return <div>Loading...</div>;
+    }
+  
+    if (!user) {
+      window.location.href = '/api/auth/login';
+      return null; 
+    }
+  
   const decoded = useDecodedToken();
   const isAdmin = decoded?.admin || false;
 
@@ -48,11 +60,6 @@ export default function LatestVisits() {
             />
           </div>
         </div>
-
-        {/* Footer always at the bottom */}
-        <footer className="mt-4 flex-shrink-0 text-center text-gray-500">
-          © 2025 Parking System. All rights reserved.
-        </footer>
       </div>
     </div>
   );
