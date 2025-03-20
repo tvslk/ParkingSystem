@@ -21,7 +21,7 @@ function Dashboard() {
   }, [isLoading, user]);
 
   const { data: countsData, error: countsError } = useSWR(
-    "/api/raspberry?type=counts",
+    "/api/spot-info?type=counts",
     fetcher,
     { refreshInterval: 5000 }
   );

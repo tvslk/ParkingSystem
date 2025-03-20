@@ -1,11 +1,41 @@
-import pool from '../../../../lib/db'; // adjust the path if needed
+import pool from '../../../../lib/db'; // Adjust the path if needed
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("Received data from Raspberry Pi:", body);
 
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { error: "Invalid request body. Expected JSON object." },
+        { status: 400 }
+      );
+    }
+
     const { spot_id, esp_id, spot_available } = body;
+
+    if (spot_id === undefined || esp_id === undefined || spot_available === undefined) {
+      return NextResponse.json(
+        { error: "Missing required fields: spot_id, esp_id, or spot_available." },
+        { status: 400 }
+      );
+    }
+
+    if (typeof spot_id !== 'number' || typeof esp_id !== 'number') {
+      return NextResponse.json(
+        { error: "spot_id and esp_id must be numbers." },
+        { status: 400 }
+      );
+    }
+
+    if (typeof spot_available !== 'boolean' && typeof spot_available !== 'string') {
+      return NextResponse.json(
+        { error: "spot_available must be a boolean or string ('true' or 'false')." },
+        { status: 400 }
+      );
+    }
+
     const availability = (spot_available === true || 
       (typeof spot_available === 'string' && spot_available.toLowerCase() === 'true'))
       ? 1 : 0;
@@ -15,15 +45,16 @@ export async function POST(req: Request) {
       [spot_id, esp_id, availability]
     );
 
-    return Response.json(
+    return NextResponse.json(
       { message: "Data received and saved successfully", received: body },
       { status: 200 }
     );
+
   } catch (error: any) {
     console.error("Error inserting data:", error);
-    return Response.json(
-      { error: "Invalid data format or database error" },
-      { status: 400 }
+    return NextResponse.json(
+      { error: "Internal server error. Please try again later." },
+      { status: 500 }
     );
   }
 }
@@ -43,10 +74,10 @@ export async function GET() {
        ) AS recent
        GROUP BY availability`
     );
-    
+
     let available = 0;
     let occupied = 0;
-    
+
     for (const row of rows) {
       if (row.availability === 1) {
         available = row.count;
@@ -54,12 +85,13 @@ export async function GET() {
         occupied = row.count;
       }
     }
-    
-    return Response.json({ available, occupied }, { status: 200 });
+
+    return NextResponse.json({ available, occupied }, { status: 200 });
+
   } catch (error: any) {
     console.error("Error fetching counts:", error);
-    return Response.json(
-      { error: "Error fetching data" },
+    return NextResponse.json(
+      { error: "Internal server error. Please try again later." },
       { status: 500 }
     );
   }
