@@ -6,7 +6,7 @@ export async function GET() {
     try {
         const isAdmin = await isUserAdmin();
         if (!isAdmin) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
+            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
         }
 
         const [rows]: any = await pool.query('SELECT * FROM users');

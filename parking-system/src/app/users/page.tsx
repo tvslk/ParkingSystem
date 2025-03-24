@@ -4,18 +4,25 @@ import ListWindow from "../components/ListWindow";
 import Sidebar from "../components/Sidebar/Sidebar";
 import useSWR from "swr";
 import { useAuthStatus } from "../hooks/useAuthStatus";
+import { useDelayedReady } from "../hooks/useDelayedReady";
 import LoadingOverlay from "../components/LoadingOverlay";
+import UnauthorizedPage from "../unauthorized/page";
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 
 export default function UsersPage() {
-    const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
-  
+  const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
 
   const { data: usersData, error } = useSWR("/api/users", fetcher);
 
-  if (isLoading || !usersData) {
+  const isReady = useDelayedReady({
+    delay: 1000, 
+    dependencies: [isLoading, user, adminChecked],
+    condition: !isLoading && !!user && adminChecked
+  });
+
+  if (!isReady) {
     return <LoadingOverlay />;
   }
 
@@ -30,6 +37,7 @@ export default function UsersPage() {
     `${user.full_name || "Unknown"} (${user.email || "No Email"})`;
 
   return (
+    isAdmin ? 
     <div className="flex h-screen bg-white">
       <Sidebar isAdmin={isAdmin} />
       <div className="flex-1 p-8 flex flex-col">
@@ -46,6 +54,6 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div> : <UnauthorizedPage />
   );
 }
