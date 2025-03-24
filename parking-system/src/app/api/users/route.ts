@@ -9,7 +9,6 @@ export async function GET() {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
         }
 
-        // If the user is an admin, proceed with fetching users
         const [rows]: any = await pool.query('SELECT * FROM users');
         return new Response(JSON.stringify(rows), { status: 200 });
     } catch (error: any) {

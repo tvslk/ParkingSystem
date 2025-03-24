@@ -1,26 +1,22 @@
 "use client";
 import { useEffect } from "react";
 import ListWindow from "../components/ListWindow";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/Sidebar/Sidebar";
 import useSWR from "swr";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuthStatus } from "../hooks/useAuthStatus";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 
 export default function UsersPage() {
-  const { user, isLoading } = useUser();
+    const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
+  
 
   const { data: usersData, error } = useSWR("/api/users", fetcher);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      window.location.href = "/api/auth/login";
-    }
-  }, [isLoading, user]);
-
   if (isLoading || !usersData) {
-    return <div>Loading...</div>;
+    return <LoadingOverlay />;
   }
 
   if (error) {
@@ -35,7 +31,7 @@ export default function UsersPage() {
 
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar />
+      <Sidebar isAdmin={isAdmin} />
       <div className="flex-1 p-8 flex flex-col">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-500">{headerTitle}</h1>
