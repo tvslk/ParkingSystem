@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import useSWR from "swr";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { useAuthStatus } from "../hooks/useAuthStatus";
+import { useDelayedReady } from "../hooks/useDelayedReady";
 import AdminDashboard from "../components/Dashboard/AdminDashboard";
 import UserDashboard from "../components/Dashboard/UserDashboard";
 
@@ -11,9 +12,7 @@ const fetcher = (url: string) =>
 
 export default function Dashboard() {
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
-  const [isReady, setIsReady] = useState(false);
   
-  // Get the data with SWR
   const { data: countsData, error: countsError } = useSWR(
     user ? "/api/raspberry?type=counts" : null,
     fetcher,
@@ -26,24 +25,12 @@ export default function Dashboard() {
     { refreshInterval: 5000 }
   );
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    if (!isLoading && user && adminChecked) {
-      // Add delay to ensure all data has settled
-      timer = setTimeout(() => {
-        setIsReady(true);
-      }, 2000);
-    } else {
-      setIsReady(false);
-    }
-    
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [isLoading, user, adminChecked]);
+  const isReady = useDelayedReady({
+    delay: 1000, 
+    dependencies: [isLoading, user, adminChecked],
+    condition: !isLoading && !!user && adminChecked
+  });
 
-  // Always show loading until explicitly ready
   if (!isReady) {
     return <LoadingOverlay />;
   }
@@ -53,7 +40,6 @@ export default function Dashboard() {
 
   const counts = countsData || { available: 0, occupied: 0 };
 
-  // Return the appropriate dashboard based on admin status
   if (isAdmin) {
     return <AdminDashboard counts={counts} visitsData={visitsData} />;
   } else {

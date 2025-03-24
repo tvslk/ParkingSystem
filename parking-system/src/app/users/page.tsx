@@ -37,7 +37,7 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold text-gray-500">{headerTitle}</h1>
         </header>
         <div className="flex-grow flex items-center justify-center">
-          <div className="w-full max-w-7xl mx-auto">
+          <div className="w-full mx-auto">
             <ListWindow
               title={listWindowTitle}
               items={usersData}

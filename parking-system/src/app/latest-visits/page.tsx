@@ -5,6 +5,7 @@ import ListWindow from "../components/ListWindow";
 import Sidebar from "../components/Sidebar/Sidebar";
 import useSWR from "swr";
 import { useAuthStatus } from "../hooks/useAuthStatus";
+import { useDelayedReady } from "../hooks/useDelayedReady";
 import LoadingOverlay from "../components/LoadingOverlay";
 
 const fetcher = (url: string) =>
@@ -18,18 +19,29 @@ const formatVisit = (visit: any) =>
 
 export default function Dashboard() {
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
+  
+  const { data: visitsData, error } = useSWR(
+    user ? "/api/latest-visits" : null, 
+    fetcher
+  );
+
+  const isReady = useDelayedReady({
+    delay: 1000, 
+    dependencies: [isLoading, user, adminChecked],
+    condition: !isLoading && !!user && adminChecked 
+  });
+
+  if (!isReady) {
+    return <LoadingOverlay />;
+  }
+
+  if (error) return <div>Error loading visits.</div>;
 
   const fullName = user?.name || "User";
-
   const headerTitle = isAdmin
     ? "Latest parking spot updates"
     : `${fullName}'s Latest Visits`;
   const listWindowTitle = isAdmin ? "List of all spot logs" : "Latest visits";
-
-  const { data: visitsData, error } = useSWR("/api/latest-visits", fetcher);
-
-  if (isLoading || !user || !visitsData) return <LoadingOverlay />;
-  if (error) return <div>Error loading visits.</div>;
 
   return (
     <div className="flex h-screen bg-white">
@@ -40,10 +52,10 @@ export default function Dashboard() {
         </header>
 
         <div className="flex-grow flex items-center justify-center">
-          <div className="w-full max-w-7xl mx-auto">
+          <div className="w-full mx-auto">
             <ListWindow
               title={listWindowTitle}
-              items={visitsData}
+              items={visitsData || []}
               formatItem={formatVisit}
             />
           </div>

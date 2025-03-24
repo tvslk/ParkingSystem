@@ -16,7 +16,7 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
     <Sidebar isAdmin={true} />
     <div className="flex-1 p-8 flex flex-col">
         <header className="mb-4 flex-shrink-0">
-          <h1 className="text-3xl font-bold text-gray-500">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-500">Dashboard</h1>
         </header>
 
         <div className="flex-grow flex flex-col overflow-auto">
