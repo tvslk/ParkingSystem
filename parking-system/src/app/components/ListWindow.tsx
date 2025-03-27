@@ -4,7 +4,6 @@ interface ListWindowProps {
   title: string;
   items: any[];
   formatItem: (item: any) => string;
-  // If true, center the content (useful for when there are only a few logs)
   centerContent?: boolean;
 }
 
