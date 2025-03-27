@@ -14,7 +14,7 @@ export default function Dashboard() {
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
   
   const { data: countsData, error: countsError } = useSWR(
-    user ? "/api/raspberry?type=counts" : null,
+    user ? "/api/spot-info?type=counts" : null,
     fetcher,
     { refreshInterval: 5000 }
   );

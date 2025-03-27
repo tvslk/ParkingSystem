@@ -1,5 +1,6 @@
-import pool from '../../../../lib/db'; // Adjust the path if needed
+import pool from '../../../../lib/db'; 
 import { NextResponse } from 'next/server';
+import { getSession } from '@auth0/nextjs-auth0';
 
 export async function POST(req: Request) {
   try {
@@ -22,10 +23,26 @@ export async function POST(req: Request) {
       );
     }
 
-    if (typeof spot_id !== 'number' || typeof esp_id !== 'number') {
+    if (typeof spot_id !== 'number') {
       return NextResponse.json(
-        { error: "spot_id and esp_id must be numbers." },
+        { error: "spot_id must be a number." },
         { status: 400 }
+      );
+    }
+
+    if (spot_id < 1 || spot_id > 50) {
+      return NextResponse.json(
+        { error: "spot_id is in wrong format." },
+        { status: 400 }
+      );
+    }
+
+    const macAddressRegex = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+
+    if (!macAddressRegex.test(esp_id)) {
+      return NextResponse.json(
+      { error: "esp_id must be a valid MAC address." },
+      { status: 400 }
       );
     }
 
@@ -59,8 +76,17 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const session = await getSession();
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: "Unauthorized. Authentication required." },
+        { status: 401 }
+      );
+    }
+
     const [rows]: any = await pool.query(
       `SELECT availability, COUNT(*) AS count 
        FROM (
