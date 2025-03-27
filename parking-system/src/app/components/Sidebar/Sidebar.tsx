@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser as useAuth0User } from "@auth0/nextjs-auth0/client";
+import { useAuthStatus } from "@/app/hooks/useAuthStatus";
 import AdminSidebar from "./AdminSidebar";
 import BaseSidebar from "./BaseSidebar";
 
-interface SidebarProps {
-    isAdmin: boolean;
-  }
 
-const Sidebar = ({ isAdmin }: SidebarProps) => {
-  const { user, isLoading } = useAuth0User();
+const Sidebar = () => {
+  const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
   
   const fullName = user?.name || "User";
   

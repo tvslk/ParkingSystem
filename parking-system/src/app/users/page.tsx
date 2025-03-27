@@ -34,12 +34,12 @@ export default function UsersPage() {
   const listWindowTitle = "List of all users";
 
   const formatUser = (user: any) =>
-    `${user.full_name || "Unknown"} (${user.email || "No Email"})`;
+    `${user.name || "Unknown"} (${user.email || "No Email"})`;
 
   return (
     isAdmin ? 
     <div className="flex h-screen bg-white">
-      <Sidebar isAdmin={isAdmin} />
+      <Sidebar />
       <div className="flex-1 p-8 flex flex-col">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-500">{headerTitle}</h1>
