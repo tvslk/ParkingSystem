@@ -7,7 +7,6 @@ import Sidebar from "@/app/components/Sidebar/Sidebar";
 import InterfaceButton from "@/app/components/Buttons/InterfaceButtons";
 import { useAuthStatus } from '@/app/hooks/useAuthStatus';
 
-// Update interfaces to match your API response
 interface ParkingSpot {
   spot_id: number;
   available: boolean;
@@ -19,7 +18,7 @@ interface Visit {
   id: number;
   spot_id: number;
   status: string;
-  timestamp: string;
+  created_at: string;
   license_plate?: string;
 }
 
@@ -27,7 +26,6 @@ const formatSpotId = (id: number | string) =>
   "PS" + id.toString().padStart(3, "0");
 
 export default function ParkingSpotStatus() {
-  // Use useParams instead of useRouter
   const params = useParams();
   const id = params.id as string;
   
@@ -96,7 +94,7 @@ export default function ParkingSpotStatus() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-400">
-                    Last updated: {formatCustomDateTime(spotData.last_updated)}
+                  Last updated: {formatCustomDateTime(spotData.last_updated)}
                 </p>
               </div>
             )}
@@ -115,7 +113,7 @@ export default function ParkingSpotStatus() {
                     className="text-gray-500 flex justify-between items-center p-3 bg-white rounded-lg"
                   >
                     <span>
-                        {formatCustomDateTime(visit.timestamp)}
+                      {formatCustomDateTime(visit.created_at)}
                     </span>
                     <div className="flex items-center">
                       {visit.license_plate && (
@@ -125,10 +123,10 @@ export default function ParkingSpotStatus() {
                       )}
                       <span className={`px-3 py-1 rounded-full text-sm text-white ${
                         visit.status === 'Available' 
-                          ? 'bg-green-500' 
+                          ? 'bg-emerald-700' 
                           : visit.status === 'Occupied' 
-                            ? 'bg-red-500' 
-                            : 'bg-yellow-500'
+                            ? 'bg-red-700' 
+                            : 'bg-yellow-600'
                       }`}>
                         {visit.status}
                       </span>
@@ -146,47 +144,30 @@ export default function ParkingSpotStatus() {
   );
 }
 
-// Helper function to get status color
 function getStatusColor(spot: ParkingSpot): string {
   if (spot.error) return 'bg-yellow-600';
   return spot.available ? 'bg-emerald-700' : 'bg-red-700';
 }
 
-// API calls
 async function getSpotData(id: string): Promise<ParkingSpot> {
-  const response = await fetch(
-    `/api/parking-spot/${id}`,
-    { cache: 'no-store' }
-  );
+  const response = await fetch(`/api/parking-spot/${id}`, { cache: 'no-store' });
   if (!response.ok) throw new Error('Failed to fetch spot data');
   return response.json();
 }
 
 async function getVisitHistory(id: string): Promise<Visit[]> {
-  const response = await fetch(
-    `/api/latest-visits/${id}`,
-    { cache: 'no-store' }
-  );
+  const response = await fetch(`/api/latest-visits/${id}`, { cache: 'no-store' });
   if (!response.ok) throw new Error('Failed to fetch visit history');
   return response.json();
 }
 
 function formatCustomDateTime(dateString: string): string {
-    try {
-      const isoDate = new Date(dateString);
-      
-      if (!isNaN(isoDate.getTime())) {
-        return `${isoDate.getDate()}.${isoDate.getMonth() + 1}.${isoDate.getFullYear()} ${String(isoDate.getHours()).padStart(2, '0')}:${String(isoDate.getMinutes()).padStart(2, '0')}`;
-      }
-  
-      const [datePart, timePart] = dateString.split(' ');
-      const [day, month, year] = datePart.split('.').map(Number);
-      const [hours, minutes] = timePart.split(':').map(Number);
-      
-      return `${day}.${month}.${year} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-      
-    } catch (e) {
-      return 'Invalid date';
-    }
+  try {
+    const date = new Date(dateString);
+    return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ` +
+           `${String(date.getHours()).padStart(2, '0')}:` +
+           `${String(date.getMinutes()).padStart(2, '0')}`;
+  } catch (e) {
+    return 'Invalid date';
   }
-  
+}
