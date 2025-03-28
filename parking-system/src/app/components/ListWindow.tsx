@@ -14,7 +14,7 @@ const ListWindow: React.FC<ListWindowProps> = ({
   centerContent = false,
 }) => {
   return (
-    <div className="bg-zinc-100 rounded-2xl shadow p-6 h-full flex flex-col">
+    <div className="bg-zinc-100 rounded-2xl shadow-md p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-500">{title}</h2>
       </div>

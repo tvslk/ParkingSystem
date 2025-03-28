@@ -6,21 +6,21 @@ import Link from 'next/link';
 import Sidebar from "@/app/components/Sidebar/Sidebar";
 import InterfaceButton from "@/app/components/Buttons/InterfaceButtons";
 import { useAuthStatus } from '@/app/hooks/useAuthStatus';
+import ListWindow from '@/app/components/ListWindow';
+import LoadingOverlay from '@/app/components/LoadingOverlay';
 
 interface ParkingSpot {
-  spot_id: number;
-  available: boolean;
-  error: boolean;
-  last_updated: string;
-}
+    spot_id: number;
+    available: boolean;
+    last_updated: string;
+    reserved?: boolean;
+    error?: boolean;
+  }
 
 interface Visit {
-  id: number;
-  spot_id: number;
-  status: string;
-  created_at: string;
-  license_plate?: string;
-}
+    startDate: string;
+    endDate?: string;
+  }
 
 const formatSpotId = (id: number | string) => 
   "PS" + id.toString().padStart(3, "0");
@@ -54,10 +54,26 @@ export default function ParkingSpotStatus() {
     fetchData();
   }, [id]);
 
-  if (authLoading) return <div>Loading authentication...</div>;
-  if (!user) return <div>Please login to view this page</div>;
-  if (loading) return <div>Loading spot information...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const formatVisit = (visit: Visit) => {
+    const entryDate = formatCustomDateTime(visit.startDate);
+    const exitDate = visit.endDate 
+      ? formatCustomDateTime(visit.endDate)
+      : 'prítomnosť';
+    return `${entryDate} - ${exitDate}`;
+  };
+  
+
+if (authLoading || loading) {
+    return <LoadingOverlay />; 
+}
+
+if (error) {
+    useEffect(() => {
+        window.location.href = "/404";
+    }, []);
+
+    return null;
+}
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -78,7 +94,20 @@ export default function ParkingSpotStatus() {
         </header>
 
         <div className="flex-grow flex flex-col gap-8">
-          {/* Status Card */}
+          {/* Reservation Status */}
+          {spotData?.reserved && (
+            <div className="bg-zinc-100 rounded-2xl shadow-md p-6">
+              <div className="text-lg text-gray-500 space-y-4">
+                <p className="font-medium">Parking spot is currently reserved</p>
+                <InterfaceButton 
+                  label="Cancel reservation" 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Spot Status Card */}
           <div className="bg-zinc-100 rounded-2xl shadow-md p-6">
             <h2 className="text-2xl font-semibold text-gray-500 mb-4">Status</h2>
             {spotData && (
@@ -100,50 +129,19 @@ export default function ParkingSpotStatus() {
             )}
           </div>
 
-          {/* Latest Visits Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold text-gray-500">Latest visits</h2>
-            </div>
-            <ul className="space-y-4">
-              {visits.length > 0 ? (
-                visits.map((visit) => (
-                  <li 
-                    key={visit.id} 
-                    className="text-gray-500 flex justify-between items-center p-3 bg-white rounded-lg"
-                  >
-                    <span>
-                      {formatCustomDateTime(visit.created_at)}
-                    </span>
-                    <div className="flex items-center">
-                      {visit.license_plate && (
-                        <span className="mr-4 px-3 py-1 bg-gray-100 rounded-full text-sm">
-                          {visit.license_plate}
-                        </span>
-                      )}
-                      <span className={`px-3 py-1 rounded-full text-sm text-white ${
-                        visit.status === 'Available' 
-                          ? 'bg-emerald-700' 
-                          : visit.status === 'Occupied' 
-                            ? 'bg-red-700' 
-                            : 'bg-yellow-600'
-                      }`}>
-                        {visit.status}
-                      </span>
-                    </div>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-500">No visit history found</li>
-              )}
-            </ul>
-          </div>
+          {/* Latest Visits with ListWindow */}
+          <ListWindow
+            title="Latest visits"
+            items={visits.map((v, index) => ({ ...v, id: index }))} // Add temporary IDs for rendering
+            formatItem={formatVisit}
+          />
         </div>
       </div>
     </div>
   );
 }
 
+// Helper functions and API calls
 function getStatusColor(spot: ParkingSpot): string {
   if (spot.error) return 'bg-yellow-600';
   return spot.available ? 'bg-emerald-700' : 'bg-red-700';
@@ -156,10 +154,12 @@ async function getSpotData(id: string): Promise<ParkingSpot> {
 }
 
 async function getVisitHistory(id: string): Promise<Visit[]> {
-  const response = await fetch(`/api/latest-visits/${id}`, { cache: 'no-store' });
-  if (!response.ok) throw new Error('Failed to fetch visit history');
-  return response.json();
-}
+    const response = await fetch(`/api/latest-visits/spot/${id}`, { 
+      cache: 'no-store' 
+    });
+    if (!response.ok) throw new Error('Failed to fetch visit history');
+    return response.json();
+  }
 
 function formatCustomDateTime(dateString: string): string {
   try {
@@ -168,6 +168,7 @@ function formatCustomDateTime(dateString: string): string {
            `${String(date.getHours()).padStart(2, '0')}:` +
            `${String(date.getMinutes()).padStart(2, '0')}`;
   } catch (e) {
+    console.error('Invalid date format:', dateString);
     return 'Invalid date';
   }
 }

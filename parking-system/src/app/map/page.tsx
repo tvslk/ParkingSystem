@@ -22,7 +22,7 @@ const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 const spotsPerPage = 12;
 
-export default function Dashboard() {
+export default function Map() {
   const [currentPage, setCurrentPage] = useState(1);
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
 
@@ -31,6 +31,7 @@ export default function Dashboard() {
     dependencies: [isLoading, user, adminChecked],
     condition: !isLoading && !!user && adminChecked
   });
+
   const { data: spotsData } = useSWR<SpotsResponse>(
     isReady ? `/api/parking-spot?page=${currentPage}&limit=${spotsPerPage}&sort=spot_id&order=asc` : null,
     fetcher
@@ -39,6 +40,10 @@ export default function Dashboard() {
   const spotDetail = (spotId: number) => {
     window.location.href = `/map/spot/${spotId}`;
   };
+
+  if (!isReady) {
+    return <LoadingOverlay />;
+  }
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
