@@ -36,6 +36,10 @@ export default function Dashboard() {
     fetcher
   );
 
+  const spotDetail = (spotId: number) => {
+    window.location.href = `/map/spot/${spotId}`;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "available":
@@ -69,6 +73,7 @@ export default function Dashboard() {
               <div
                 key={spot.spot_id}
                 className="relative flex flex-col items-center justify-center border border-zinc-300 rounded-xl p-4 hover:scale-105 transition-transform duration-300 ease-in-out"
+                onClick={spotDetail.bind(null, spot.spot_id)}
               >
                 <span className="text-sm font-medium text-zinc-600">
                   PS{spot.spot_id.toString().padStart(3, "0")}
