@@ -5,6 +5,7 @@ interface ListWindowProps {
   items: any[];
   formatItem: (item: any) => string;
   centerContent?: boolean;
+  className?: string;
 }
 
 const ListWindow: React.FC<ListWindowProps> = ({

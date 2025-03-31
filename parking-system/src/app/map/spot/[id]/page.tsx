@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from "@/app/components/Sidebar/Sidebar";
-import InterfaceButton from "@/app/components/Buttons/InterfaceButtons";
+import ReservationManager from "@/app/components/Reservation/ReservationManager";
 import { useAuthStatus } from '@/app/hooks/useAuthStatus';
 import ListWindow from '@/app/components/ListWindow';
 import LoadingOverlay from '@/app/components/LoadingOverlay';
@@ -62,18 +62,17 @@ export default function ParkingSpotStatus() {
     return `${entryDate} - ${exitDate}`;
   };
   
-
-if (authLoading || loading) {
+  if (authLoading || loading) {
     return <LoadingOverlay />; 
-}
+  }
 
-if (error) {
+  if (error) {
     useEffect(() => {
         window.location.href = "/404";
     }, []);
 
     return null;
-}
+  }
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -93,57 +92,75 @@ if (error) {
           </h1>
         </header>
 
-        <div className="flex-grow flex flex-col gap-8">
-          {/* Reservation Status */}
-          {spotData?.reserved && (
-            <div className="bg-zinc-100 rounded-2xl shadow-md p-6">
-              <div className="text-lg text-gray-500 space-y-4">
-                <p className="font-medium">Parking spot is currently reserved</p>
-                <InterfaceButton 
-                  label="Cancel reservation" 
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Spot Status Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-500 mb-4">Status</h2>
-            {spotData && (
-              <div className="text-lg text-gray-500">
-                <div className="flex items-center mb-4">
-                  <div className={`w-4 h-4 rounded-full mr-3 ${getStatusColor(spotData)}`}></div>
-                  <span>
-                    {spotData.error 
+        {/* Grid Layout with full height columns */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 w-full flex-grow h-full">
+          {/* Left Column - now with h-full and flex for vertical stretching */}
+          <div className="flex flex-col gap-6 h-full">
+            {/* Spot Status Card - fixed height with no grow */}
+            <div className="bg-zinc-100 rounded-2xl shadow-md p-6 flex-shrink-0">
+              <h2 className="text-2xl font-semibold text-gray-500 mb-4">Status</h2>
+              {spotData && (
+                <div className="text-lg text-gray-500">
+                  <div className="flex items-center mb-4">
+                    <div className={`w-4 h-4 rounded-full mr-3 ${getStatusColor(spotData)}`}></div>
+                    <span>
+                      {spotData.error 
                       ? "Error" 
-                      : spotData.available 
+                      : spotData.reserved 
+                        ? "Reserved" 
+                        : spotData.available 
                         ? "Available" 
                         : "Occupied"}
-                  </span>
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Last updated: {formatCustomDateTime(spotData.last_updated)}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-400">
-                  Last updated: {formatCustomDateTime(spotData.last_updated)}
-                </p>
+              )}
+            </div>
+
+            {/* Reservation Manager - grow to fill remaining space */}
+            <div className="flex-grow flex flex-col">
+              <style jsx global>{`
+                .reservation-container {
+                  height: 100%;
+                  display: flex;
+                  flex-direction: column;
+                }
+                .reservation-container > div {
+                  height: 100%;
+                  display: flex;
+                  flex-direction: column;
+                }
+              `}</style>
+              <div className="reservation-container w-full h-full">
+                <ReservationManager />
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Latest Visits with ListWindow */}
-          <ListWindow
-            title="Latest visits"
-            items={visits.map((v, index) => ({ ...v, id: index }))} // Add temporary IDs for rendering
-            formatItem={formatVisit}
-          />
+          {/* Right Column - full height */}
+          <div className="h-full flex">
+            <div className="w-full flex flex-col">
+              <ListWindow
+                title="Latest visits"
+                items={visits.map((v, index) => ({ ...v, id: index }))}
+                formatItem={formatVisit}
+                className="h-full flex-grow"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Helper functions and API calls
+// Helper functions remain the same
 function getStatusColor(spot: ParkingSpot): string {
   if (spot.error) return 'bg-yellow-600';
+  if (spot.reserved) return 'bg-red-700'
   return spot.available ? 'bg-emerald-700' : 'bg-red-700';
 }
 
@@ -154,12 +171,12 @@ async function getSpotData(id: string): Promise<ParkingSpot> {
 }
 
 async function getVisitHistory(id: string): Promise<Visit[]> {
-    const response = await fetch(`/api/latest-visits/spot/${id}`, { 
-      cache: 'no-store' 
-    });
-    if (!response.ok) throw new Error('Failed to fetch visit history');
-    return response.json();
-  }
+  const response = await fetch(`/api/latest-visits/spot/${id}`, { 
+    cache: 'no-store' 
+  });
+  if (!response.ok) throw new Error('Failed to fetch visit history');
+  return response.json();
+}
 
 function formatCustomDateTime(dateString: string): string {
   try {

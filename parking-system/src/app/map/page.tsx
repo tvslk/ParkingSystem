@@ -9,7 +9,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 
 interface ParkingSpot {
   spot_id: number;
-  available: boolean;
+  available: boolean; // from row.availability === 1
+  reserved: boolean;  // from Boolean(row.reserved)
   error: boolean;
 }
 
@@ -20,20 +21,24 @@ interface SpotsResponse {
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
+
 const spotsPerPage = 12;
 
 export default function Map() {
   const [currentPage, setCurrentPage] = useState(1);
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
 
+  // Wait until user/auth checks are done
   const isReady = useDelayedReady({
-    delay: 1000, 
+    delay: 1000,
     dependencies: [isLoading, user, adminChecked],
-    condition: !isLoading && !!user && adminChecked
+    condition: !isLoading && !!user && adminChecked,
   });
 
   const { data: spotsData } = useSWR<SpotsResponse>(
-    isReady ? `/api/parking-spot?page=${currentPage}&limit=${spotsPerPage}&sort=spot_id&order=asc` : null,
+    isReady
+      ? `/api/parking-spot?page=${currentPage}&limit=${spotsPerPage}&sort=spot_id&order=asc`
+      : null,
     fetcher
   );
 
@@ -45,21 +50,26 @@ export default function Map() {
     return <LoadingOverlay />;
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "available":
-        return "bg-emerald-700";
-      case "occupied":
-      case "reserved":
-        return "bg-red-700";
-      case "error":
-        return "bg-yellow-600";
-      default:
-        return "bg-gray-300";
-    }
+  // If there's an active reservation, show "Reserved" first
+  const getSpotLabel = (spot: ParkingSpot) => {
+    if (spot.error) return "Error";
+    if (spot.reserved) return "Reserved";
+    if (spot.available) return "Available";
+    return "Occupied";
   };
 
-  if (!isReady) return <LoadingOverlay />;
+  const getStatusColor = (label: string) => {
+    switch (label.toLowerCase()) {
+      case "error":
+        return "bg-yellow-600";
+      case "reserved":
+        return "bg-red-700";
+      case "available":
+        return "bg-emerald-700";
+      default:
+        return "bg-red-700"; // "Occupied"
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -70,44 +80,37 @@ export default function Map() {
           <h1 className="text-3xl font-bold text-gray-500">Parking Lot Map</h1>
         </header>
 
-        {/* Main content card */}
+        {/* Main content */}
         <div className="bg-zinc-100 rounded-2xl shadow-md p-6 flex flex-col flex-grow">
-          {/* Parking Grid */}
+          {/* Grid of parking spots */}
           <div className="grid grid-cols-6 gap-6 flex-grow p-4">
-            {spotsData?.spots?.map((spot: ParkingSpot) => (
-              <div
-                key={spot.spot_id}
-                className="relative flex flex-col items-center justify-center border border-zinc-300 rounded-xl p-4 hover:scale-105 transition-transform duration-300 ease-in-out"
-                onClick={spotDetail.bind(null, spot.spot_id)}
-              >
-                <span className="text-sm font-medium text-zinc-600">
-                  PS{spot.spot_id.toString().padStart(3, "0")}
-                </span>
-                <span className="text-xs text-zinc-500">
-                  {spot.error
-                    ? "Error"
-                    : spot.available
-                    ? "Available"
-                    : "Occupied"}
-                </span>
+            {spotsData?.spots?.map((spot) => {
+              const label = getSpotLabel(spot);
+              return (
                 <div
-                  className={`w-3 h-3 rounded-full mt-2 ${
-                    getStatusColor(spot.error ? "error" : spot.available ? "available" : "occupied")
-                  }`}
-                />
-              </div>
-            ))}
+                  key={spot.spot_id}
+                  className="relative flex flex-col items-center justify-center border border-zinc-300 rounded-xl p-4 hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer"
+                  onClick={() => spotDetail(spot.spot_id)}
+                >
+                  <span className="text-sm font-medium text-zinc-600">
+                    PS{spot.spot_id.toString().padStart(3, "0")}
+                  </span>
+                  <span className="text-xs text-zinc-500">{label}</span>
+                  <div
+                    className={`w-3 h-3 rounded-full mt-2 ${getStatusColor(label)}`}
+                  />
+                </div>
+              );
+            })}
           </div>
 
-          {/* Bottom bar with Pagination and Legend */}
+          {/* Pagination + Legend */}
           <div className="flex justify-between items-center mt-4 p-2 bg-white rounded-lg shadow-md">
-            {/* Pagination Controls */}
             <PaginationControls
               currentPage={currentPage}
               totalPages={Math.ceil((spotsData?.total || 0) / spotsPerPage)}
               onPageChange={setCurrentPage}
             />
-            {/* Legend */}
             <StatusLegend />
           </div>
         </div>
@@ -116,11 +119,12 @@ export default function Map() {
   );
 }
 
+/* Pagination Controls & Legend unchanged */
 interface PaginationProps {
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-  }
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
   
   const PaginationControls = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
     // Generate the page numbers to display
@@ -214,7 +218,7 @@ interface PaginationProps {
   const StatusLegend = () => (
     <div className="flex items-center justify-end gap-10 px-6">
       <LegendItem color="bg-emerald-700" label="Available" />
-      <LegendItem color="bg-red-700" label="Occupied" />
+      <LegendItem color="bg-red-700" label="Occupied / Reserved" />
       <LegendItem color="bg-yellow-600" label="Error" />
     </div>
   );

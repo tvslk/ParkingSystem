@@ -27,7 +27,16 @@ export async function GET(
     }
 
     const [rows]: any = await pool.query(
-      `SELECT t.spot_id, t.availability, t.created_at
+      `SELECT 
+        t.spot_id, 
+        t.availability, 
+        t.created_at,
+        EXISTS (
+          SELECT 1 
+          FROM reservations 
+          WHERE spot_id = t.spot_id 
+          AND NOW() BETWEEN start_time AND end_time
+        ) AS reserved
        FROM parking_spots t
        INNER JOIN (
           SELECT spot_id, MAX(created_at) AS maxCreated
@@ -47,11 +56,11 @@ export async function GET(
     }
 
     const spot = rows[0];
-    const available = spot.availability === 1;
-
+    
     return NextResponse.json({
       spot_id: spot.spot_id,
-      available: available,
+      available: spot.availability === 1,
+      reserved: Boolean(spot.reserved),
       last_updated: spot.created_at
     }, { status: 200 });
 
