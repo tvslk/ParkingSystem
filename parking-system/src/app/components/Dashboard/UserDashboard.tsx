@@ -1,6 +1,11 @@
 import Sidebar from "../Sidebar/Sidebar";
 import InterfaceButton from "../Buttons/InterfaceButtons";
 
+function formatCustomDateTime(dateString: string): string {
+  const date = new Date(dateString);
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
 const formatSpotId = (id: number | string) =>
   "PS" + id.toString().padStart(3, "0");
 
@@ -63,9 +68,9 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
               </div>
               <ul>
                 {(visitsData?.length ?? 0) > 0 ? (
-                  visitsData.slice(0, 5).map((item: any) => (
-                    <li key={item.id || item.created_at} className="py-2 border-b text-gray-500">
-                      {new Date(item.created_at).toLocaleString()} - {formatSpotId(item.spot_id)}
+                  visitsData.slice(0, 5).map((item: any, index: number) => (
+                    <li key={`${item.id || item.created_at}-${index}`} className="py-2 border-b text-gray-500">
+                      {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} - {item.availability === 1 ? "Departed" : "Arrived"}
                     </li>
                   ))
                 ) : (

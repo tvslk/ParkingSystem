@@ -8,6 +8,7 @@ import ReservationManager from "@/app/components/Reservation/ReservationManager"
 import { useAuthStatus } from '@/app/hooks/useAuthStatus';
 import ListWindow from '@/app/components/ListWindow';
 import LoadingOverlay from '@/app/components/LoadingOverlay';
+import UnauthorizedPage from '@/app/unauthorized/page';
 
 interface ParkingSpot {
     spot_id: number;
@@ -23,13 +24,13 @@ interface Visit {
   }
 
 const formatSpotId = (id: number | string) => 
-  "PS" + id.toString().padStart(3, "0");
+  id.toString().padStart(3, "0");
 
 export default function ParkingSpotStatus() {
   const params = useParams();
   const id = params.id as string;
-  
-  const { user, isLoading: authLoading } = useAuthStatus();
+
+  const { user, isLoading: authLoading, isAdmin } = useAuthStatus();
   const [spotData, setSpotData] = useState<ParkingSpot | null>(null);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +38,6 @@ export default function ParkingSpotStatus() {
 
   useEffect(() => {
     if (!id) return;
-
     const fetchData = async () => {
       try {
         const spot = await getSpotData(id);
@@ -50,31 +50,23 @@ export default function ParkingSpotStatus() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [id]);
-
-  const formatVisit = (visit: Visit) => {
+  
+    const formatVisit = (visit: Visit) => {
     const entryDate = formatCustomDateTime(visit.startDate);
     const exitDate = visit.endDate 
       ? formatCustomDateTime(visit.endDate)
       : 'prítomnosť';
     return `${entryDate} - ${exitDate}`;
   };
-  
+
   if (authLoading || loading) {
-    return <LoadingOverlay />; 
-  }
-
-  if (error) {
-    useEffect(() => {
-        window.location.href = "/404";
-    }, []);
-
-    return null;
+    return <LoadingOverlay />;
   }
 
   return (
+    isAdmin ?
     <div className="flex min-h-screen bg-white">
       <Sidebar />
       <div className="flex-1 p-8 flex flex-col">
@@ -87,16 +79,17 @@ export default function ParkingSpotStatus() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-500">
-            {formatSpotId(id)}
-          </h1>
+            <h1 className="text-3xl text-gray-500">
+            <span className="font-bold">PS</span>
+            <span className="font-medium">{formatSpotId(id)}</span>
+            </h1>
         </header>
 
-        {/* Grid Layout with full height columns */}
+        {/* Grid Layout */}
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 w-full flex-grow h-full">
-          {/* Left Column - now with h-full and flex for vertical stretching */}
+          {/* Left Column */}
           <div className="flex flex-col gap-6 h-full">
-            {/* Spot Status Card - fixed height with no grow */}
+            {/* Spot Status Card */}
             <div className="bg-zinc-100 rounded-2xl shadow-md p-6 flex-shrink-0">
               <h2 className="text-2xl font-semibold text-gray-500 mb-4">Status</h2>
               {spotData && (
@@ -114,13 +107,14 @@ export default function ParkingSpotStatus() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-400">
-                    Last updated: {formatCustomDateTime(spotData.last_updated)}
+                    <span className="font-bold"> Last updated  </span>
+                    {formatCustomDateTime(spotData.last_updated)}
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Reservation Manager - grow to fill remaining space */}
+            {/* Reservation Manager */}
             <div className="flex-grow flex flex-col">
               <style jsx global>{`
                 .reservation-container {
@@ -153,11 +147,10 @@ export default function ParkingSpotStatus() {
           </div>
         </div>
       </div>
-    </div>
+    </div> : <UnauthorizedPage />
   );
 }
 
-// Helper functions remain the same
 function getStatusColor(spot: ParkingSpot): string {
   if (spot.error) return 'bg-yellow-600';
   if (spot.reserved) return 'bg-red-700'

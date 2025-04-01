@@ -8,7 +8,7 @@ export async function GET() {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
     const [rows]: any = await pool.query(
-      'SELECT spot_id, created_at FROM parking_spots ORDER BY created_at DESC'
+      'SELECT spot_id, created_at, availability FROM parking_spots ORDER BY created_at DESC'
     );
     return new Response(JSON.stringify(rows), { status: 200 });
   } catch (error: any) {

@@ -1,6 +1,10 @@
 import Sidebar from "../Sidebar/Sidebar";
 import InterfaceButton from "../Buttons/InterfaceButtons";
-import AdminSidebar from "../Sidebar/AdminSidebar";
+
+function formatCustomDateTime(dateString: string): string {
+  const date = new Date(dateString);
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
 
 const formatSpotId = (id: number | string) =>
   "PS" + id.toString().padStart(3, "0");
@@ -40,12 +44,12 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
             </div>
 
             {/* Parking Lot Image Card */}
-            <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col items-center">
-              <div className="flex-grow flex flex-col items-center justify-center w-full">
+            <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col h-full">
+              <div className="flex-1 relative min-h-[300px]">
                 <img
                   src="/map.png"
                   alt="Parking Lot"
-                  className="rounded-lg mb-4 w-full object-cover h-48"
+                  className="rounded-lg absolute inset-0 w-full h-full object-cover"
                 />
               </div>
               <div className="w-full flex justify-center mt-4">
@@ -64,9 +68,9 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
               </div>
               <ul>
                 {(visitsData?.length ?? 0) > 0 ? (
-                  visitsData.slice(0, 5).map((item: any) => (
-                    <li key={item.id || item.created_at} className="py-2 border-b text-gray-500">
-                      {new Date(item.created_at).toLocaleString()} - {formatSpotId(item.spot_id)}
+                  visitsData.slice(0, 5).map((item: any, index: number) => (
+                    <li key={`${item.id || item.created_at}-${index}`} className="py-2 border-b text-gray-500">
+                      {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} - {item.availability === 1 ? "Departed" : "Arrived"}
                     </li>
                   ))
                 ) : (

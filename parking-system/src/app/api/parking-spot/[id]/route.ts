@@ -1,6 +1,7 @@
 import pool from '../../../../../lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
+import { isUserAdmin } from '@/actions/isUserAdmin';
 
 export async function GET(
   req: Request,
@@ -8,8 +9,9 @@ export async function GET(
 ) {
   try {
     const session = await getSession();
+    const isAdmin = await isUserAdmin();
     
-    if (!session || !session.user) {
+    if (!isAdmin|| !session || !session.user) {
       return NextResponse.json(
         { error: "Unauthorized. Authentication required." },
         { status: 401 }

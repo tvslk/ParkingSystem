@@ -14,8 +14,15 @@ const fetcher = (url: string) =>
 const formatSpotId = (spotId: number | string) =>
   "PS" + spotId.toString().padStart(3, "0");
 
-const formatVisit = (visit: any) =>
-  `${new Date(visit.created_at).toLocaleString()} - ${formatSpotId(visit.spot_id)}`;
+const formatVisit = (visit: any) => {
+  const date = new Date(visit.created_at);
+  const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(
+    date.getMonth() + 1
+  ).padStart(2, '0')}.${date.getFullYear()} ${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes()
+  ).padStart(2, '0')}`;
+  return `${formattedDate} - ${formatSpotId(visit.spot_id)} - ${visit.availability === 1 ? "Departed" : "Arrived"}`;
+};
 
 export default function Dashboard() {
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();

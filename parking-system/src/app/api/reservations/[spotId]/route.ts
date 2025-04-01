@@ -1,6 +1,7 @@
 import { getSession } from '@auth0/nextjs-auth0';
 import pool from '../../../../../lib/db';
 import { RowDataPacket } from 'mysql2';
+import { isUserAdmin } from '@/actions/isUserAdmin';
 
 interface Reservation extends RowDataPacket {
   id: number;
@@ -11,8 +12,9 @@ interface Reservation extends RowDataPacket {
 
 export async function POST(request: Request, { params }: { params: { spotId: string } }) {
   try {
+    const isAdmin = await isUserAdmin();
     const session = await getSession();
-    if (!session || !session.user) {
+    if (!session || !session.user || !isAdmin) {
       return new Response(JSON.stringify({ error: "Unauthorized. Authentication required." }), { status: 401 });
     }
 

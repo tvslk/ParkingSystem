@@ -1,6 +1,8 @@
 import pool from '../../../../../../lib/db';
 import { getSession } from '@auth0/nextjs-auth0';
 import { RowDataPacket } from 'mysql2';
+import { useAuthStatus } from '@/app/hooks/useAuthStatus';
+import { isUserAdmin } from '@/actions/isUserAdmin';
 
 interface DatabaseRow extends RowDataPacket {
   spot_id: number;
@@ -11,7 +13,8 @@ interface DatabaseRow extends RowDataPacket {
 export async function GET(_: Request, { params }: { params: { spotId: string } }) {
   try {
     const session = await getSession();
-    if (!session?.user) {
+    const isAdmin = await isUserAdmin();
+    if (!session?.user || !isAdmin) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
@@ -28,13 +31,10 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
       [spotId]
     );
 
-  //  console.log(`Raw DB rows for spot ${spotId}:`, rows);
 
-    // Process state changes
     const stateChanges: DatabaseRow[] = [];
     let previousAvailability: number | null = null;
     
-    // Filter consecutive duplicates and maintain chronological order
     const chronologicalRows = [...rows].reverse();
     for (const row of chronologicalRows) {
       const currentAvailability = Number(row.availability);
@@ -44,9 +44,6 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
       }
     }
 
-   // console.log(`Filtered state changes for spot ${spotId}:`, stateChanges);
-
-    // Build visits from state changes
     const visits: Array<{ startDate: string; endDate?: string }> = [];
     let currentVisit: { startDate: string; endDate?: string } | null = null;
 
@@ -64,7 +61,6 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
         if (currentVisit) {
           currentVisit.endDate = change.created_at;
           visits.push(currentVisit);
-         // console.log(`Visit ended at ${change.created_at}`, currentVisit);
           currentVisit = null;
         }
       }
@@ -73,13 +69,10 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
     // Add any ongoing visit
     if (currentVisit) {
       visits.push(currentVisit);
-     // console.log(`Ongoing visit at ${currentVisit.startDate}`);
     }
 
     // Return visits in reverse chronological order
     const orderedVisits = visits.reverse();
-   // console.log(`Final visits for spot ${spotId}:`, orderedVisits);
-
     return new Response(JSON.stringify(orderedVisits), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }

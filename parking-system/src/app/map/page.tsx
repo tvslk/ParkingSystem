@@ -84,21 +84,24 @@ export default function Map() {
         <div className="bg-zinc-100 rounded-2xl shadow-md p-6 flex flex-col flex-grow">
           {/* Grid of parking spots */}
           <div className="grid grid-cols-6 gap-6 flex-grow p-4">
-            {spotsData?.spots?.map((spot) => {
+                        {spotsData?.spots?.map((spot) => {
               const label = getSpotLabel(spot);
               return (
                 <div
                   key={spot.spot_id}
                   className="relative flex flex-col items-center justify-center border border-zinc-300 rounded-xl p-4 hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer"
-                  onClick={() => spotDetail(spot.spot_id)}
+                  onClick={() => {
+                    if (isAdmin) {
+                      spotDetail(spot.spot_id);
+                    }
+                  }}
                 >
-                  <span className="text-sm font-medium text-zinc-600">
-                    PS{spot.spot_id.toString().padStart(3, "0")}
+                 <span className="text-lg text-zinc-500">
+                    <span className="font-bold">PS</span>
+                    <span className="font-medium">{spot.spot_id.toString().padStart(3, "0")}</span>
                   </span>
-                  <span className="text-xs text-zinc-500">{label}</span>
-                  <div
-                    className={`w-3 h-3 rounded-full mt-2 ${getStatusColor(label)}`}
-                  />
+                  <span className="text-xs text-zinc-500 mt-0">{label}</span>
+                  <div className={`w-3 h-3 rounded-full mt-2 ${getStatusColor(label)}`} />
                 </div>
               );
             })}

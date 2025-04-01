@@ -135,12 +135,13 @@ export default function ReservationManager() {
   return (
     <div className="bg-zinc-100 rounded-2xl shadow-md p-6 space-y-6 h-full flex flex-col">
       <div className="text-lg text-gray-500 space-y-4 flex-grow">
+      <h3 className="font-semibold text-gray-500">Select Reservation Time</h3>
+
         {/* Date/Time Picker */}
-        <div className="space-y-4">
-          <h3 className="font-semibold">Select Reservation Time</h3>
-          <div className="grid grid-cols-2 gap-4 px-7">
+        <div className="bg-white shadow-lg rounded-lg p-7 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm mb-2">Start Time</label>
+              <label className="block text-sm mb-2 text-gray-500">Start Time</label>
               <DatePicker
                 selected={startDate}
                 onChange={setStartDate}
@@ -148,12 +149,12 @@ export default function ReservationManager() {
                 dateFormat="dd.MM.yyyy HH:mm"
                 minDate={new Date()}
                 filterTime={(time) => !isTimeBlocked(time)}
-                className="w-full p-2 rounded border border-gray-300"
+                className="w-full p-2 rounded-lg border border-[#b9babb] bg-transparent"
                 placeholderText="Select start time"
               />
             </div>
             <div>
-              <label className="block text-sm mb-2">End Time</label>
+              <label className="block text-sm mb-2 text-gray-500">End Time</label>
               <DatePicker
                 selected={endDate}
                 onChange={setEndDate}
@@ -161,13 +162,11 @@ export default function ReservationManager() {
                 dateFormat="dd.MM.yyyy HH:mm"
                 minDate={startDate || new Date()}
                 filterTime={(time) => !isTimeBlocked(time)}
-                className="w-full p-2 rounded border border-gray-300"
+                className="w-full p-2 rounded-lg border border-[#b9babb] bg-transparent"
                 placeholderText="Select end time"
               />
             </div>
           </div>
-
-          {/* Make Reservation Button on the right */}
           <div className="flex justify-center">
             <InterfaceButton
               label={loading ? 'Processing...' : 'Make Reservation'}
@@ -181,12 +180,12 @@ export default function ReservationManager() {
         {reservations.length > 0 && (
           <div className="space-y-4 flex-grow overflow-auto">
             <h3 className="font-semibold">Active Reservations</h3>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="space-y-2 max-h-60 overflow-y-auto pb-4">
               {reservations.map(r => (
-                <div key={r.id} className="bg-white p-3 rounded-lg shadow-sm">
+                <div key={r.id} className="bg-white p-3 rounded-lg shadow-lg">
                   {/* Reservation date & cancel button on the same row */}
                   <div className="flex items-center justify-between">
-                    <p className="text-base px-3 font-large text-gray-600">
+                    <p className="text-base px-3 font-large text-gray-500">
                       {formatCustomDateTime(r.start_time)} – {formatCustomDateTime(r.end_time)}
                     </p>
                     <InterfaceButton
