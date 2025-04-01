@@ -52,9 +52,9 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
                   className="rounded-lg absolute inset-0 w-full h-full object-cover"
                 />
               </div>
-              <div className="w-full flex justify-center mt-4">
-                <InterfaceButton label="Show parking lot" />
-              </div>
+                <div className="w-full flex justify-center mt-4">
+                <InterfaceButton label="Show parking lot" onClick={() => window.location.href = "/map"} />
+                </div>
             </div>
 
             {/* Latest Updates Card - Admin View */}
@@ -67,16 +67,19 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
                 />
               </div>
               <ul>
-                {(visitsData?.length ?? 0) > 0 ? (
-                  visitsData.slice(0, 5).map((item: any, index: number) => (
-                    <li key={`${item.id || item.created_at}-${index}`} className="py-2 border-b text-gray-500">
-                      {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} - {item.availability === 1 ? "Departed" : "Arrived"}
-                    </li>
-                  ))
-                ) : (
-                  <li className="py-2 text-gray-500">No data available.</li>
-                )}
-              </ul>
+              {(visitsData?.length ?? 0) > 0 ? (
+                visitsData.slice(0, 5).map((item: any, index: number) => (
+                  <li
+                    key={`${item.id || item.created_at}-${index}`}
+                    className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
+                  >
+                    {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} - {item.availability === 1 ? "Departed" : "Arrived"}
+                  </li>
+                ))
+              ) : (
+                <li className="py-2 text-gray-500">No data available.</li>
+              )}
+            </ul>
             </div>
           </div>
         </div>

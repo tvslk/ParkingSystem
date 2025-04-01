@@ -53,7 +53,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
                 />
               </div>
               <div className="w-full flex justify-center mt-4">
-                <InterfaceButton label="Show parking lot" />
+              <InterfaceButton label="Show parking lot" onClick={() => window.location.href = "/map"} />
               </div>
             </div>
 
@@ -66,10 +66,13 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
                   label="View all"
                 />
               </div>
-              <ul>
+                <ul>
                 {(visitsData?.length ?? 0) > 0 ? (
                   visitsData.slice(0, 5).map((item: any, index: number) => (
-                    <li key={`${item.id || item.created_at}-${index}`} className="py-2 border-b text-gray-500">
+                    <li
+                      key={`${item.id || item.created_at}-${index}`}
+                      className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
+                    >
                       {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} - {item.availability === 1 ? "Departed" : "Arrived"}
                     </li>
                   ))
