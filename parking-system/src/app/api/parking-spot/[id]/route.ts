@@ -1,6 +1,7 @@
 import pool from '../../../../../lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
+import { isUserAdmin } from '@/actions/isUserAdmin';
 
 export async function GET(
   req: Request,
@@ -8,8 +9,9 @@ export async function GET(
 ) {
   try {
     const session = await getSession();
+    const isAdmin = await isUserAdmin();
     
-    if (!session || !session.user) {
+    if (!isAdmin|| !session || !session.user) {
       return NextResponse.json(
         { error: "Unauthorized. Authentication required." },
         { status: 401 }
@@ -27,7 +29,16 @@ export async function GET(
     }
 
     const [rows]: any = await pool.query(
-      `SELECT t.spot_id, t.availability, t.created_at
+      `SELECT 
+        t.spot_id, 
+        t.availability, 
+        t.created_at,
+        EXISTS (
+          SELECT 1 
+          FROM reservations 
+          WHERE spot_id = t.spot_id 
+          AND NOW() BETWEEN start_time AND end_time
+        ) AS reserved
        FROM parking_spots t
        INNER JOIN (
           SELECT spot_id, MAX(created_at) AS maxCreated
@@ -47,11 +58,11 @@ export async function GET(
     }
 
     const spot = rows[0];
-    const available = spot.availability === 1;
-
+    
     return NextResponse.json({
       spot_id: spot.spot_id,
-      available: available,
+      available: spot.availability === 1,
+      reserved: Boolean(spot.reserved),
       last_updated: spot.created_at
     }, { status: 200 });
 

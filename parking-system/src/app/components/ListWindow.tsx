@@ -5,6 +5,7 @@ interface ListWindowProps {
   items: any[];
   formatItem: (item: any) => string;
   centerContent?: boolean;
+  className?: string;
 }
 
 const ListWindow: React.FC<ListWindowProps> = ({
@@ -12,21 +13,23 @@ const ListWindow: React.FC<ListWindowProps> = ({
   items,
   formatItem,
   centerContent = false,
+  className = "",
 }) => {
   return (
-    <div className="bg-zinc-100 rounded-2xl shadow p-6 h-full flex flex-col">
+    <div className={`bg-zinc-100 rounded-2xl shadow-md p-6 h-full flex flex-col ${className}`}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-500">{title}</h2>
       </div>
       {centerContent ? (
-        // When centerContent is true, let the container grow and center its inner content vertically.
         <div className="flex-grow flex flex-col items-center justify-center">
           <ul className="w-full">
             {items && items.length > 0 ? (
-              items.map((item: any) => (
+              items.map((item: any, index: number) => (
                 <li
-                  key={item.id || item.created_at}
-                  className="py-2 border-b text-gray-500"
+                  key={item.id || item.created_at || index}
+                  className={`py-2 text-gray-500 border-b ${
+                    index === 0 ? "border-t" : ""
+                  }`}
                 >
                   {formatItem(item)}
                 </li>
@@ -39,14 +42,15 @@ const ListWindow: React.FC<ListWindowProps> = ({
           </ul>
         </div>
       ) : (
-        // Otherwise, use a scrollable container with a max height.
-        <div className="overflow-y-auto max-h-[60vh]">
+        <div className="overflow-y-auto max-h-[70vh]">
           <ul>
             {items && items.length > 0 ? (
-              items.map((item: any) => (
+              items.map((item: any, index: number) => (
                 <li
-                  key={item.id || item.created_at}
-                  className="py-2 border-b text-gray-500"
+                  key={item.id || item.created_at || index}
+                  className={`py-2 text-gray-500 border-b ${
+                    index === 0 ? "border-t" : ""
+                  }`}
                 >
                   {formatItem(item)}
                 </li>

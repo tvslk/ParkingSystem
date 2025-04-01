@@ -4,6 +4,7 @@ interface InterfaceButtonProps {
     label: string;
     onClick?: () => void;
     className?: string;
+    disabled?: boolean;
 }
 
 const InterfaceButton: React.FC<InterfaceButtonProps> = ({ label, onClick, className = "" }) => {

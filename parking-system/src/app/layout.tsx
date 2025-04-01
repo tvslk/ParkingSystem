@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Albert_Sans } from "next/font/google";
+import { Albert_Sans, Hanken_Grotesk } from "next/font/google";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 
-const geistSans = Albert_Sans({
+const geistSans = Hanken_Grotesk({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
