@@ -3,6 +3,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { RowDataPacket } from 'mysql2';
 import { useAuthStatus } from '@/app/hooks/useAuthStatus';
 import { isUserAdmin } from '@/actions/isUserAdmin';
+import { NextResponse } from 'next/server';
 
 interface DatabaseRow extends RowDataPacket {
   spot_id: number;
@@ -15,12 +16,12 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
     const session = await getSession();
     const isAdmin = await isUserAdmin();
     if (!session?.user || !isAdmin) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { spotId } = params;
     if (!spotId || isNaN(Number(spotId))) {
-      return new Response(JSON.stringify({ error: "Valid Spot ID is required" }), { status: 400 });
+      return NextResponse.json({ error: "Valid Spot ID is required" }, { status: 400 });
     }
 
     const [rows] = await pool.query<DatabaseRow[]>(
@@ -30,7 +31,6 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
       'ORDER BY created_at DESC',
       [spotId]
     );
-
 
     const stateChanges: DatabaseRow[] = [];
     let previousAvailability: number | null = null;
@@ -51,13 +51,10 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
       const availability = Number(change.availability);
       
       if (availability === 0) {
-        // Start new visit only if not already in one
         if (!currentVisit) {
           currentVisit = { startDate: change.created_at };
-         // console.log(`Visit started at ${change.created_at}`);
         }
       } else if (availability === 1) {
-        // End existing visit if there's one to close
         if (currentVisit) {
           currentVisit.endDate = change.created_at;
           visits.push(currentVisit);
@@ -66,22 +63,20 @@ export async function GET(_: Request, { params }: { params: { spotId: string } }
       }
     }
 
-    // Add any ongoing visit
     if (currentVisit) {
       visits.push(currentVisit);
     }
 
-    // Return visits in reverse chronological order
     const orderedVisits = visits.reverse();
-    return new Response(JSON.stringify(orderedVisits), {
+    return NextResponse.json(orderedVisits, {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error(`Error processing spot ${params.spotId}:`, error);
-    return new Response(
-      JSON.stringify({ error: "Failed to process visits", details: error instanceof Error ? error.message : 'Unknown error' }),
+    return NextResponse.json(
+      { error: "Failed to process visits", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
