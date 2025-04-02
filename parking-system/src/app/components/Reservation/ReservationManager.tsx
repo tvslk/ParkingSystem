@@ -180,7 +180,7 @@ export default function ReservationManager() {
         {reservations.length > 0 && (
           <div className="space-y-4 flex-grow overflow-auto">
             <h3 className="font-semibold">Active Reservations</h3>
-            <div className="space-y-2 max-h-60 overflow-y-auto pb-4">
+            <div className="space-y-2 max-h-48 overflow-y-auto pb-4">
               {reservations.map(r => (
                 <div key={r.id} className="bg-white p-3 rounded-lg shadow-lg">
                   {/* Reservation date & cancel button on the same row */}
