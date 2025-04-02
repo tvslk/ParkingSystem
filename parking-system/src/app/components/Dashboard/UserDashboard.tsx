@@ -44,17 +44,17 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
             </div>
 
             {/* Parking Lot Image Card */}
-            <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col items-center">
-              <div className="flex-grow flex flex-col items-center justify-center w-full">
+            <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-2 flex flex-col h-full">
+              <div className="flex-1 relative min-h-[300px]">
                 <img
                   src="/map.png"
                   alt="Parking Lot"
-                  className="rounded-lg mb-4 w-full object-cover h-48"
+                  className="rounded-lg absolute inset-0 w-full h-full object-cover"
                 />
               </div>
-              <div className="w-full flex justify-center mt-4">
-              <InterfaceButton label="Show parking lot" onClick={() => window.location.href = "/map"} />
-              </div>
+                <div className="w-full flex justify-center mt-4">
+                <InterfaceButton label="Show parking lot" onClick={() => window.location.href = "/map"} />
+                </div>
             </div>
 
             {/* Latest Visits Card - User View */}
