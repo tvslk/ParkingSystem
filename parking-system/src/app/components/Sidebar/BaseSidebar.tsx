@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
+import { useAuthStatus } from "@/app/hooks/useAuthStatus";
 
 interface BaseSidebarProps {
   fullName: string;
@@ -9,6 +10,7 @@ interface BaseSidebarProps {
 }
 
 const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
+  const { user } = useAuthStatus();
   return (
     <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-zinc-100 border-r shadow-xl">
       <Link href="/" className="block">
@@ -102,7 +104,7 @@ const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
           <Link href="/profile" className="flex items-center px-4 -mx-2">
             <img
               className="object-cover mx-2 rounded-full h-9 w-9"
-              src="/avatar.png"
+              src={user?.picture || "/avatar.png"}
               alt="Parking system user"
             />
             <span className="mx-2 font-semibold text-gray-500">{fullName}</span>
