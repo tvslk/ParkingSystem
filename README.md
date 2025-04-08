@@ -139,7 +139,7 @@ This project is proprietary and not open-source. Contact the author for licensin
 ## Screenshots
 
 ### User Dashboard
-![User Dashboard](https://imgur.com/TB7OkP2)
+![User Dashboard](https://i.imgur.com/TB7OkP2.png)
 
 ### Admin Dashboard
-![Admin Dashboard](https://imgur.com/n56O3PH)
+![Admin Dashboard](https://i.imgur.com/n56O3PH.png)
