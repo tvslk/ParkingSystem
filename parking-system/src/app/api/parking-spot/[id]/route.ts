@@ -3,10 +3,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
 import { isUserAdmin } from '@/actions/isUserAdmin';
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     const session = await getSession();
     const isAdmin = await isUserAdmin();

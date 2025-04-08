@@ -2,6 +2,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import pool from '../../../../../lib/db';
 import { RowDataPacket } from 'mysql2';
 import { isUserAdmin } from '@/actions/isUserAdmin';
+import { NextResponse } from 'next/server';
 
 interface Reservation extends RowDataPacket {
   id: number;
@@ -15,12 +16,12 @@ export async function POST(request: Request, { params }: { params: { spotId: str
     const isAdmin = await isUserAdmin();
     const session = await getSession();
     if (!session || !session.user || !isAdmin) {
-      return new Response(JSON.stringify({ error: "Unauthorized. Authentication required." }), { status: 401 });
+      return NextResponse.json({ error: "Unauthorized. Authentication required." }, { status: 401 });
     }
 
     const spotId = Number(params.spotId);
     if (isNaN(spotId)) {
-      return new Response(JSON.stringify({ error: "Invalid Spot ID" }), { status: 400 });
+      return NextResponse.json({ error: "Invalid Spot ID" }, { status: 400 });
     }
 
     const body = await request.json();
@@ -31,11 +32,11 @@ export async function POST(request: Request, { params }: { params: { spotId: str
 
     const now = new Date();
     if (start < now || end < now) {
-      return new Response(JSON.stringify({ error: "Cannot reserve a past date/time" }), { status: 400 });
+      return NextResponse.json({ error: "Cannot reserve a past date/time" }, { status: 400 });
     }
 
     if (start >= end) {
-      return new Response(JSON.stringify({ error: "Invalid time range" }), { status: 400 });
+      return NextResponse.json({ error: "Invalid time range" }, { status: 400 });
     }
 
     const [conflicts] = await pool.query<Reservation[]>(
@@ -50,10 +51,10 @@ export async function POST(request: Request, { params }: { params: { spotId: str
     );
 
     if (conflicts.length > 0) {
-      return new Response(JSON.stringify({
+      return NextResponse.json({
         error: "Time conflict detected",
         conflicts: conflicts.map(c => c.id)
-      }), { status: 409 });
+      }, { status: 409 });
     }
 
     // Create reservation
@@ -63,16 +64,16 @@ export async function POST(request: Request, { params }: { params: { spotId: str
       [spotId, start, end]
     );
 
-    return new Response(JSON.stringify({
+    return NextResponse.json({
       id: (result as any).insertId,
       spotId,
       startTime: start,
       endTime: end
-    }), { status: 201 });
+    }, { status: 201 });
 
   } catch (error) {
     console.error("Reservation error:", error);
-    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
@@ -80,12 +81,12 @@ export async function GET(request: Request, { params }: { params: { spotId: stri
   try {
     const session = await getSession();
     if (!session || !session.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized. Authentication required." }), { status: 401 });
+      return NextResponse.json({ error: "Unauthorized. Authentication required." }, { status: 401 });
     }
 
     const spotId = Number(params.spotId);
     if (isNaN(spotId)) {
-      return new Response(JSON.stringify({ error: "Invalid Spot ID" }), { status: 400 });
+      return NextResponse.json({ error: "Invalid Spot ID" }, { status: 400 });
     }
 
     const [reservations] = await pool.query<Reservation[]>(
@@ -96,11 +97,11 @@ export async function GET(request: Request, { params }: { params: { spotId: stri
       [spotId]
     );
 
-    return new Response(JSON.stringify(reservations), { status: 200 });
+    return NextResponse.json(reservations, { status: 200 });
 
   } catch (error) {
     console.error("Fetch error:", error);
-    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
@@ -108,19 +109,19 @@ export async function DELETE(request: Request, { params }: { params: { spotId: s
   try {
     const session = await getSession();
     if (!session || !session.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized. Authentication required." }), { status: 401 });
+      return NextResponse.json({ error: "Unauthorized. Authentication required." }, { status: 401 });
     }
 
     const url = new URL(request.url);
     const reservationId = url.searchParams.get('id');
 
     if (!reservationId) {
-      return new Response(JSON.stringify({ error: "Missing reservation ID" }), { status: 400 });
+      return NextResponse.json({ error: "Missing reservation ID" }, { status: 400 });
     }
 
     const spotId = Number(params.spotId);
     if (isNaN(spotId)) {
-      return new Response(JSON.stringify({ error: "Invalid Spot ID" }), { status: 400 });
+      return NextResponse.json({ error: "Invalid Spot ID" }, { status: 400 });
     }
 
     const [result] = await pool.query(
@@ -130,13 +131,13 @@ export async function DELETE(request: Request, { params }: { params: { spotId: s
     );
 
     if ((result as any).affectedRows === 0) {
-      return new Response(JSON.stringify({ error: "Reservation not found" }), { status: 404 });
+      return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
     }
 
-    return new Response(JSON.stringify({ message: "Reservation deleted" }), { status: 200 });
+    return NextResponse.json({ message: "Reservation deleted" }, { status: 200 });
 
   } catch (error) {
     console.error("Delete error:", error);
-    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
