@@ -46,16 +46,17 @@ export async function POST(req: Request) {
       );
     }
 
-    if (typeof spot_available !== 'boolean' && typeof spot_available !== 'string') {
+        if (
+      typeof spot_available !== 'boolean' &&
+      !(typeof spot_available === 'string' && (spot_available.toLowerCase() === 'true' || spot_available.toLowerCase() === 'false'))
+    ) {
       return NextResponse.json(
-        { error: "spot_available must be a boolean or string ('true' or 'false')." },
+        { error: "spot_available must be a boolean or a string ('true' or 'false')." },
         { status: 400 }
       );
     }
-
-    const availability = (spot_available === true || 
-      (typeof spot_available === 'string' && spot_available.toLowerCase() === 'true'))
-      ? 1 : 0;
+    
+    const availability = (spot_available === true || (typeof spot_available === 'string' && spot_available.toLowerCase() === 'true')) ? 1 : 0;
 
     await pool.query(
       "INSERT INTO parking_spots (spot_id, esp_id, availability, created_at) VALUES (?, ?, ?, NOW())",
