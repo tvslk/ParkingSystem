@@ -8,19 +8,30 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   const hideNavbar = pathname === '/m';
   const { isAdmin, user } = useAuthStatus();
 
+  // For admin: dashboard, map, users, logout, profile => 5 icons
+  // For user: dashboard, map, logout, profile => 4 icons
+  const navCols = isAdmin ? 'grid-cols-5' : 'grid-cols-4';
+
   return (
     <html lang="en" className="h-full">
       <body className="h-full flex flex-col">
-      <header className="w-full flex justify-center items-center py-3 bg-white border-b border-gray-200">
-        <img src="/ps-gray.svg" alt="Parking System Logo" className="h-8" />        </header>
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        {/* Make header a fixed height (e.g. h-14) so nav can match */}
         {!hideNavbar && (
-          <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-            <div className={`grid ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'} gap-4 p-2`}>
+          <header className="w-full h-14 flex items-center justify-center bg-white border-b border-gray-200">
+            <img src="https://i.ibb.co/kt3XqSC/ps-gray.png" alt="Parking System Logo" className="h-8" />
+          </header>
+        )}
+
+        <main className="flex-1 overflow-y-auto">{children}</main>
+
+        {!hideNavbar && (
+          <nav className="fixed bottom-0 left-0 right-0 h-14 flex items-center bg-white border-t border-gray-200">
+            {/* Use grid with full height to match header */}
+            <div className={`grid ${navCols} w-full h-full gap-1 px-2 items-center justify-items-center`}>
               {/* Dashboard */}
               <a href="/m/dashboard" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5 text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -35,7 +46,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               {/* Map */}
               <a href="/m/map" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5 text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -52,7 +63,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               {isAdmin && (
                 <a href="/m/users" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 text-gray-500"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -66,16 +77,42 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                 </a>
               )}
 
-              {/* Profile */}
-              <a href="/m/profile" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
-              <img
-              className="object-cover mx-2 rounded-full h-9 w-9"
-              src={user?.picture || "/avatar.png"}
-              alt="Parking system user"
-            />
+              {/* Logout */}
+              <a
+                href="/api/auth/logout"
+                className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17 16l4-4-4-4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 19H9a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </a>
 
-              
+              {/* Profile */}
+              <a href="/m/profile" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-full">
+                <img
+                  className="object-cover rounded-full h-8 w-8"
+                  src={user?.picture || "/avatar.png"}
+                  alt="Parking system user"
+                />
+              </a>
             </div>
           </nav>
         )}
