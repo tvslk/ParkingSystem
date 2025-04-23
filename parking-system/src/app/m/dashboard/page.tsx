@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStatus } from "@/app/hooks/useAuthStatus";
 import InterfaceButton from "@/app/components/Buttons/InterfaceButtons";
+import LoadingOverlay from "@/app/components/LoadingOverlay";
 
 function formatCustomDateTime(dateString: string): string {
   const date = new Date(dateString);
@@ -16,6 +17,7 @@ const formatSpotId = (id: number | string) =>
   "PS" + id.toString().padStart(3, "0");
 
 const useDashboardData = () => {
+  const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
   const [counts, setCounts] = useState({ available: 0, occupied: 0 });
   const [visitsData, setVisitsData] = useState<any[]>([]);
   useEffect(() => {
@@ -50,10 +52,13 @@ const useDashboardData = () => {
     return () => clearInterval(interval);
   }, []);
   return { counts, visitsData };
+  
 };
 
+ 
+
 export default function MobileDashboardPage() {
-  const { isAdmin } = useAuthStatus();
+  const { isAdmin, isLoading, adminChecked, user } = useAuthStatus();
   const { counts, visitsData } = useDashboardData();
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [qrExpiresAt, setQrExpiresAt] = useState<string>("—");
@@ -72,8 +77,12 @@ export default function MobileDashboardPage() {
     if (!isAdmin) fetchQrCode();
   }, [isAdmin]);
 
+  if (isLoading || !user || !adminChecked || !counts) {
+      return <LoadingOverlay />;
+    }
+
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white min-h-screen">
+    <div className="flex flex-col gap-4 p-4 bg-white min-h-screen mb-12">
       {/* QR Code Card (users only) */}
       {!isAdmin && (
         <div className="bg-zinc-100 rounded-2xl shadow-md p-4 flex flex-col items-center">
@@ -141,7 +150,7 @@ export default function MobileDashboardPage() {
         </div>
         <ul>
           {(visitsData?.length ?? 0) > 0 ? (
-            visitsData.slice(0, 5).map((item: any, index: number) => (
+            visitsData.slice(0, 4).map((item: any, index: number) => (
               <li
                 key={`${item.id || item.created_at}-${index}`}
                 className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
