@@ -60,18 +60,20 @@ export default function MobileUsersPage() {
               <h2 className="text-xl font-semibold text-gray-500">{listWindowTitle}</h2>
             </div>
             <ul>
-              {(usersData?.length ?? 0) > 0 ? (
-                usersData.slice(0, 4).map((u: any, index: number) => (
-                  <li
-                    key={u?.sub || u?.id}
-                    className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
-                  >
-                    {formatUser(u)}
-                  </li>
-                ))
-              ) : (
-                <li className="py-2 text-gray-500">No data available.</li>
-              )}
+            <ul className="overflow-y-auto max-h-[55vh]">
+                {(usersData?.length ?? 0) > 0 ? (
+                    usersData.map((u: any, index: number) => (
+                        <li
+                            key={u?.sub || u?.id}
+                            className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
+                        >
+                            {formatUser(u)}
+                        </li>
+                    ))
+                ) : (
+                    <li className="py-2 text-gray-500">No data available.</li>
+                )}
+            </ul>
             </ul>
           </div>
         </div>
