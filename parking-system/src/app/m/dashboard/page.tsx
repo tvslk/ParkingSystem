@@ -82,7 +82,7 @@ export default function MobileDashboardPage() {
     }
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white min-h-screen mb-12">
+    <div className="flex flex-col gap-4 p-4 bg-white min-h-screen pb-16">
       {/* QR Code Card (users only) */}
       {!isAdmin && (
         <div className="bg-zinc-100 rounded-2xl shadow-md p-4 flex flex-col items-center">
