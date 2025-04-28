@@ -1,25 +1,35 @@
-"use client";
-import React from "react";
-import Link from "next/link";
-
+'use client';
+import { useState, useEffect } from 'react';
 
 export default function MainPageButtons() {
-    return (
-      <div className="flex gap-4">
-        <a
-          id="signin"
-          className="px-6 py-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-zinc-400 rounded-lg hover:bg-zinc-300 focus:outline-none "
-          href="/api/auth/login?prompt=login&returnTo=/dashboard"
-          >
-          Sign in
-        </a>
-        <a
-          id="register"
-          className="px-6 py-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-zinc-600 rounded-lg hover:bg-zinc-500 focus:outline-none "
-          href="/api/auth/signup?prompt=signup&returnTo=/login"
-          >
-          Register
-        </a>
-     </div>
-    );
-  }
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const ua = navigator.userAgent.toLowerCase();
+    const mobilePattern = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/;
+    setIsMobile(mobilePattern.test(ua));
+  }, []);
+
+  const mobilePrefix = isMobile ? '/m' : '';
+
+  return (
+    <div className="flex gap-4">
+      <button
+        onClick={() => (window.location.href = `/api/auth/login?prompt=login&returnTo=${mobilePrefix}/dashboard`)}
+        className="h-10 px-5 py-3 font-medium text-sm text-[#637381] bg-transparent border border-[#b9babb] rounded-[10px] flex justify-center items-center gap-2.5 transition-colors duration-300 transform hover:bg-zinc-200 focus:outline-none"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-4 h-4"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75h15m0 0-6-6m6 6-6 6" />
+        </svg>
+      </button>
+      
+    </div>
+  );
+}

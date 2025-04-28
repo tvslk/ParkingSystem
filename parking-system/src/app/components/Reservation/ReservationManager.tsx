@@ -149,7 +149,7 @@ export default function ReservationManager() {
                 dateFormat="dd.MM.yyyy HH:mm"
                 minDate={new Date()}
                 filterTime={(time) => !isTimeBlocked(time)}
-                className="w-full p-2 rounded-lg border border-[#b9babb] bg-transparent"
+                className="w-full p-2 text-center rounded-lg border border-[#b9babb] bg-transparent"
                 placeholderText="Select start time"
               />
             </div>
@@ -162,7 +162,7 @@ export default function ReservationManager() {
                 dateFormat="dd.MM.yyyy HH:mm"
                 minDate={startDate || new Date()}
                 filterTime={(time) => !isTimeBlocked(time)}
-                className="w-full p-2 rounded-lg border border-[#b9babb] bg-transparent"
+                className="w-full p-2 text-center rounded-lg border border-[#b9babb] bg-transparent"
                 placeholderText="Select end time"
               />
             </div>
