@@ -1,5 +1,3 @@
-// app/api/parking-spots/route.ts
-
 import pool from '../../../../lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';

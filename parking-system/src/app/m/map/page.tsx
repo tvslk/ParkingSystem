@@ -20,7 +20,7 @@ interface SpotsResponse {
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 
-const spotsPerPage = 12;
+const spotsPerPage = 10;
 
 export default function Map() {
   const [currentPage, setCurrentPage] = useState(1);

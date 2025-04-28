@@ -92,7 +92,7 @@ export default function MobileParkingSpotStatus() {
       <main className="flex-1 flex items-start justify-center p-2 pb-16">
         <div className="w-full mx-2 flex flex-col space-y-6">
           {/* Spot Status Card */}
-          <div className="bg-zinc-100 rounded-2xl shadow-md p-4">
+          <div className="bg-zinc-100 rounded-2xl shadow-md p-6">
             <h2 className="text-2xl font-semibold text-gray-500 mb-4">Status</h2>
             {spotData && (
               <div className="text-lg text-gray-500">
