@@ -2,7 +2,9 @@ push_to_github:
   stage: deploy
   image: node:18
   script:
+    - git fetch origin master
+    - git checkout master || git checkout -b master
     - git remote add github https://$GITHUB_TOKEN@github.com/tvslk/ParkingSystem.git
-    - git push github main
+    - git push github master
   only:
-    - main
+    - master
