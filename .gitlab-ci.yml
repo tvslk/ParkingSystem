@@ -1,5 +1,6 @@
 push_to_github:
   stage: deploy
+  image: node:18
   script:
     - git remote add github https://$GITHUB_TOKEN@github.com/tvslk/ParkingSystem.git
     - git push github main
