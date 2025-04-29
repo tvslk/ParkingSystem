@@ -2,7 +2,13 @@ push_to_github:
   stage: deploy
   image: node:18
   script:
+    # Get the entire commit history (remove shallow clone)
+    - git fetch --unshallow || true
+
+    # Add GitHub remote
     - git remote add github https://$GITHUB_TOKEN@github.com/tvslk/ParkingSystem.git
+
+    # Force-push the current commit as master
     - git push --force github HEAD:master
   only:
     - main
