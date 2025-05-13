@@ -29,7 +29,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             {/* Use grid with full height to match header */}
             <div className={`grid ${navCols} w-full h-full gap-1 px-2 items-center justify-items-center`}>
               {/* Dashboard */}
-              <a href="/m/dashboard" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
+              <a href="/m/dashboard" id="dashboard" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                 <svg
                   className="w-5 h-5 text-gray-500"
                   fill="none"
@@ -44,7 +44,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               </a>
 
               {/* Map */}
-              <a href="/m/map" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
+              <a href="/m/map" id="dashboard" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                 <svg
                   className="w-5 h-5 text-gray-500"
                   fill="none"
@@ -61,7 +61,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
 
               {/* Admin-only users icon */}
               {isAdmin && (
-                <a href="/m/users" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
+                <a href="/m/users" id="users" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                   <svg
                     className="w-5 h-5 text-gray-500"
                     fill="none"
@@ -80,6 +80,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               {/* Logout */}
               <a
                 href="/api/auth/logout"
+                id="logout"
                 className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
               >
                 <svg
@@ -106,7 +107,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               </a>
 
               {/* Profile */}
-              <a href="/m/profile" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-full">
+              <a href="/m/profile" id="profile" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-full">
                 <img
                   className="object-cover rounded-full h-8 w-8"
                   src={user?.picture || "/avatar.png"}
