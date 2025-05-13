@@ -105,7 +105,7 @@ export default function MobileDashboardPage() {
             )}
           </div>
           <div className="mt-4 w-full flex justify-center">
-            <InterfaceButton label="Regenerate" onClick={fetchQrCode} />
+            <InterfaceButton id="regenerate-qr" label="Regenerate" onClick={fetchQrCode} />
           </div>
         </div>
       )}
@@ -132,6 +132,7 @@ export default function MobileDashboardPage() {
       <div className="bg-zinc-100 rounded-2xl shadow-md p-4 flex flex-row items-center justify-between">
         <div className="text-gray-500 text-left">See the parking lot map</div>
         <InterfaceButton
+          id="show-parking-lot"
           label="Show parking lot"
           onClick={() => (window.location.href = "/m/map")}
         />
@@ -144,6 +145,7 @@ export default function MobileDashboardPage() {
             {isAdmin ? "Latest parking spot updates" : "Latest visits"}
           </h2>
           <InterfaceButton
+            id="view-all-visits"
             onClick={() => (window.location.href = "/m/latest-visits")}
             label="View all"
           />

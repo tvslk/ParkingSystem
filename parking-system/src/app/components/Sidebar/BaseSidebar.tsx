@@ -13,13 +13,14 @@ const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
   const { user } = useAuthStatus();
   return (
     <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-zinc-100 border-r shadow-xl">
-      <Link href="/" className="block">
+      <Link id="home" href="/" className="block">
         <img className="w-full h-6 sm:h-7" src="/ps-gray.svg" alt="Logo" />
       </Link>
 
       <div className="flex flex-col justify-between flex-1 mt-6">
         <nav>
           <Link
+            id="dashboard"
             href="/dashboard"
             className="flex items-center px-4 py-2 mt-5 text-gray-500 transition-colors duration-300 transform rounded-md hover:bg-zinc-200 hover:text-gray-700"
           >
@@ -41,6 +42,7 @@ const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
           </Link>
 
           <Link
+            id="map"
             href="/map"
             className="flex items-center px-4 py-2 mt-5 text-gray-500 transition-colors duration-300 transform rounded-md hover:bg-zinc-200 hover:text-gray-700"
           >
@@ -72,6 +74,7 @@ const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
           {children}
 
           <a
+            id="logout"
             href="/api/auth/logout"
             className="flex w-full items-center px-4 py-2 mt-5 text-gray-500 transition-colors duration-300 transform rounded-md hover:bg-zinc-200 hover:text-gray-700 focus:outline-none focus:bg-zinc-200 focus:text-gray-700"
           >
@@ -101,7 +104,7 @@ const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
         </nav>
 
         <div className="border-t pt-4">
-          <Link href="/profile" className="flex items-center px-4 -mx-2">
+          <Link id="profile" href="/profile" className="flex items-center px-4 -mx-2">
             <img
               className="object-cover mx-2 rounded-full h-9 w-9"
               src={user?.picture || "/avatar.png"}

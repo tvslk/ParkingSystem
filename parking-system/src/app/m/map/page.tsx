@@ -84,6 +84,7 @@ export default function Map() {
               const label = getSpotLabel(spot);
               return (
                 <div
+                  id={`spot-${spot.spot_id}`}
                   key={spot.spot_id}
                   className="flex items-center justify-between border border-zinc-300 rounded-xl p-4 hover:scale-[1.01] transition-transform cursor-pointer"
                   onClick={() => {
@@ -145,6 +146,7 @@ const PaginationControls = ({
       <ul className="flex items-center gap-2 w-full justify-between">
         <li>
           <button
+            id="prev-button"
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             className={`h-8 px-4 py-1 text-sm font-medium text-gray-600 rounded-lg flex items-center gap-1
@@ -172,6 +174,7 @@ const PaginationControls = ({
               <span className="h-8 flex items-center px-2 text-gray-600">…</span>
             ) : (
               <button
+                id={`page-button-${pageNumber}`}
                 onClick={() => onPageChange(pageNumber)}
                 className={`h-8 w-8 px-2 text-sm rounded-lg 
                   ${
@@ -187,6 +190,7 @@ const PaginationControls = ({
         ))}
         <li>
           <button
+            id="next-button"
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
             className={`h-8 px-4 py-1 text-sm font-medium text-gray-600 rounded-lg flex items-center gap-1

@@ -12,6 +12,7 @@ const AdminSidebar = ({ fullName }: AdminSidebarProps) => {
     <BaseSidebar fullName={fullName}>
       {/* Admin-specific links */}
       <Link
+        id="users"
         href="/users"
         className="flex items-center px-4 py-2 mt-5 text-gray-500 transition-colors duration-300 transform rounded-md hover:bg-zinc-200 hover:text-gray-700"
       >

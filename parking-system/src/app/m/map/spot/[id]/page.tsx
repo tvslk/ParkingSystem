@@ -69,6 +69,7 @@ export default function MobileParkingSpotStatus() {
       {/* Header */}
       <header className="px-4 pt-4 pb-2 flex items-center">
         <Link
+          id="back-button"
           href="/m/map"
           className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >

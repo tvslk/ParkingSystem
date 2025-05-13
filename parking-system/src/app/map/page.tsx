@@ -88,6 +88,7 @@ export default function Map() {
               const label = getSpotLabel(spot);
               return (
                 <div
+                  id={`spot-${spot.spot_id}`}
                   key={spot.spot_id}
                   className="relative flex flex-col items-center justify-center border border-zinc-300 rounded-xl p-4 hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer"
                   onClick={() => {
@@ -142,6 +143,7 @@ interface PaginationProps {
           {/* Previous button */}
           <li>
             <button
+              id="prev-button"
               onClick={() => onPageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`inline-flex h-8 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100
@@ -176,6 +178,7 @@ interface PaginationProps {
               ) : (
                 // Page number button
                 <button
+                  id={`page-button-${pageNumber}`}
                   onClick={() => onPageChange(pageNumber)}
                   className={`flex h-8 min-w-8 items-center justify-center text-sm rounded-lg px-2 
                     ${currentPage === pageNumber 
@@ -191,6 +194,7 @@ interface PaginationProps {
           {/* Next button */}
           <li>
             <button
+              id="next-button"
               onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               className={`inline-flex h-8 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100

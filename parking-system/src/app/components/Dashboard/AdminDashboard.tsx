@@ -53,7 +53,7 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
                 />
               </div>
                 <div className="w-full flex justify-center mt-4">
-                <InterfaceButton label="Show parking lot" onClick={() => window.location.href = "/map"} />
+                <InterfaceButton id="show-parking-lot" label="Show parking lot" onClick={() => window.location.href = "/map"} />
                 </div>
             </div>
 
@@ -62,6 +62,7 @@ export default function AdminDashboard({ counts, visitsData }: AdminDashboardPro
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold text-gray-500">Latest parking spot updates</h2>
                 <InterfaceButton
+                  id="view-all-visits"
                   onClick={() => (window.location.href = "/latest-visits")}
                   label="View all"
                 />

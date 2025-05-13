@@ -1,6 +1,7 @@
 import React from "react";
 
 interface InterfaceButtonProps {
+    id?: string;
     label: string;
     onClick?: () => void;
     className?: string;

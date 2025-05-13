@@ -72,6 +72,7 @@ export default function ParkingSpotStatus() {
       <div className="flex-1 p-8 flex flex-col">
         <header className="mb-8 flex items-center">
           <Link 
+            id="back-button"
             href="/map" 
             className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >

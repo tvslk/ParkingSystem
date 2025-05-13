@@ -143,6 +143,7 @@ export default function ReservationManager() {
             <div>
               <label className="block text-sm mb-2 text-gray-500">Start Time</label>
               <DatePicker
+                id="start-time-picker"
                 selected={startDate}
                 onChange={setStartDate}
                 showTimeSelect
@@ -156,6 +157,7 @@ export default function ReservationManager() {
             <div>
               <label className="block text-sm mb-2 text-gray-500">End Time</label>
               <DatePicker
+                id="end-time-picker"
                 selected={endDate}
                 onChange={setEndDate}
                 showTimeSelect
@@ -169,6 +171,7 @@ export default function ReservationManager() {
           </div>
           <div className="flex justify-center">
             <InterfaceButton
+              id="make-reservation"
               label={loading ? 'Processing...' : 'Make Reservation'}
               onClick={handleReservation}
               disabled={loading || !startDate || !endDate}
@@ -189,6 +192,7 @@ export default function ReservationManager() {
                       {formatCustomDateTime(r.start_time)} – {formatCustomDateTime(r.end_time)}
                     </p>
                     <InterfaceButton
+                      id={`cancel-reservation-${r.id}`}
                       label="Cancel"
                       onClick={() => handleCancel(r.id)}
                     />

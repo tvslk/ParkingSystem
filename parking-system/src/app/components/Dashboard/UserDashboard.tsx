@@ -83,6 +83,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
               </div>
               <div className="w-full flex justify-center mt-4">
                 <InterfaceButton
+                  id="show-parking-lot"
                   label="Show parking lot"
                   onClick={() => (window.location.href = "/map")}
                 />
@@ -94,6 +95,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold text-gray-500">Latest visits</h2>
                 <InterfaceButton
+                  id="view-all-visits"
                   onClick={() => (window.location.href = "/latest-visits")}
                   label="View all"
                 />
@@ -139,7 +141,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
                 )}
               </div>
               <div className="mt-4 w-full flex justify-center">
-                <InterfaceButton label="Regenerate" onClick={fetchQrCode} />
+                <InterfaceButton id="regenerate-qr" label="Regenerate" onClick={fetchQrCode} />
               </div>
             </div>
           </div>
