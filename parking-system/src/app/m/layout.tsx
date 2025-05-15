@@ -18,8 +18,10 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
         {/* Make header a fixed height (e.g. h-14) so nav can match */}
         {!hideNavbar && (
           <header className="w-full h-14 flex items-center justify-center bg-white border-b border-gray-200">
-            <img src="https://i.ibb.co/kt3XqSC/ps-gray.png" alt="Parking System Logo" className="h-8" />
-          </header>
+            <a href="/m/dashboard" id="home">
+              <img src="https://i.ibb.co/kt3XqSC/ps-gray.png" alt="Parking System Logo" className="h-8" />
+            </a>          
+            </header>
         )}
 
         <main className="flex-1 overflow-y-auto">{children}</main>
