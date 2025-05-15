@@ -38,7 +38,6 @@ SpotMonitoring is a parking lot monitoring and reservation system. This backend 
 ## Project Structure
 
 ```
-```
 backend/
 ├── .gitignore
 ├── .gitlab-ci.yml
@@ -61,12 +60,12 @@ backend/
    │   │   ├── api/        # API routes
    │   │   ├── components/ # Shared React components
    │   │   ├── dashboard/
+   │   │   ├── globals.css
    │   │   ├── hooks/      # Custom React hooks
    │   │   ├── latest-visits/
+   │   │   ├── layout.tsx
    │   │   ├── m/          # Mobile specific routes/layouts
    │   │   ├── map/
-   │   │   ├── globals.css
-   │   │   ├── layout.tsx
    │   │   ├── page.tsx
    │   │   ├── profile/
    │   │   ├── unauthorized/
