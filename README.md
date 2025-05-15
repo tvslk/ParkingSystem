@@ -38,25 +38,42 @@ SpotMonitoring is a parking lot monitoring and reservation system. This backend 
 ## Project Structure
 
 ```
+```
 backend/
-├── parking-system/
-│   ├── .env                # Environment variables
-│   ├── lib/
-│   │   └── db.ts           # MySQL database connection
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── api/        # API routes
-│   │   │   ├── components/ # Shared React components
-│   │   │   ├── hooks/      # Custom React hooks
-│   │   │   ├── dashboard/  # User and admin dashboard pages
-│   │   │   ├── latest-visits/
-│   │   │   ├── profile/
-│   │   │   ├── users/
-│   │   └── actions/        # Server-side actions (auth, roles, etc.)
-│   ├── public/             # Static assets (images, etc.)
-│   ├── README.md           # Project documentation
-│   ├── next.config.js      # Next.js configuration
-│   └── package.json        # Project dependencies
+├── .gitignore
+├── .gitlab-ci.yml
+├── README.md
+└── parking-system/
+   ├── .env
+   ├── .gitignore
+   ├── README.md
+   ├── eslint.config.mjs
+   ├── lib/
+   │   └── db.ts
+   ├── next-env.d.ts
+   ├── next.config.js
+   ├── package.json
+   ├── postcss.config.js
+   ├── public/             # Static assets
+   ├── src/
+   │   ├── actions/        # Server-side actions
+   │   ├── app/
+   │   │   ├── api/        # API routes
+   │   │   ├── components/ # Shared React components
+   │   │   ├── dashboard/
+   │   │   ├── hooks/      # Custom React hooks
+   │   │   ├── latest-visits/
+   │   │   ├── m/          # Mobile specific routes/layouts
+   │   │   ├── map/
+   │   │   ├── globals.css
+   │   │   ├── layout.tsx
+   │   │   ├── page.tsx
+   │   │   ├── profile/
+   │   │   ├── unauthorized/
+   │   │   └── users/
+   │   └── middleware.ts
+   ├── tailwind.config.js
+   └── tsconfig.json
 ```
 
 ---
