@@ -4,6 +4,10 @@ SpotMonitoring is a parking lot monitoring and reservation system. This backend 
 
 ---
 
+## Production
+
+**Production version** of this app is available on **https://parkingsystem-gl.vercel.app/**
+
 ## Features
 
 ### User Features
@@ -80,9 +84,16 @@ backend/
      DB_USER=your-database-username
      DB_PASS=your-database-password
      DB_NAME=your-database-name
-     AUTH0_DOMAIN=your-auth0-domain
-     AUTH0_CLIENT_ID=your-auth0-client-id
-     AUTH0_CLIENT_SECRET=your-auth0-client-secret
+     DB_PORT=your-database-port
+     AUTH0_DOMAIN='your-auth0-domain'
+     AUTH0_CLIENT_ID='your-auth0-client-id'
+     AUTH0_CLIENT_SECRET='your-auth0-client-secret'
+     AUTH0_SECRET='your-auth0-secret'
+     AUTH0_BASE_URL='http://your-auth0-base-url:3000/'
+     AUTH0_ISSUER_BASE_URL='https://your-auth0-issuer-burl.com'
+     AUTH0_AUDIENCE='https://your-auth0-audience.com'
+     NEXT_PUBLIC_ADMIN_ROLE_ID='your-auth0-admin-role-id'
+
      ```
 
 4. **Set Up the Database**
@@ -107,8 +118,14 @@ backend/
 - Manage parking spots, reservations, and users.
 
 ### API Endpoints
+- **`/api/auth/[auth0]`**: Api self-managed by Auth0. Handles sign up and login.
 - **`/api/qr/generate`**: Generates a QR code for gate access.
-- **`/api/latest-visits`**: Retrieves recent parking spot usage logs.
+- **`/api/latest-visits`**: Retrieves recent parking spots usage logs.
+- **`/api/latest-visits/spot/[spotId]`**: Retrieves recent parking spot usage log.
+- **`/api/parking-spot`**: Retrieves current status of all parking spots.
+- **`/api/parking-spot/[id]`**: Retrieves current status of selected parking spot.
+- **`/api/users`**: Provides list of users with usernames and emails.
+- **`/api/users/[id]`**: Provides info about selected user.
 - **`/api/spot-info`**: Provides a summary of parking spot statuses.
 - **`/api/reservations`**: Manages parking spot reservations.
 
