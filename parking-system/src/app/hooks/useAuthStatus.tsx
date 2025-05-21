@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { isUserAdmin } from "../../actions/isUserAdmin";
 
 export function useAuthStatus() {
   const { user, isLoading } = useUser();
@@ -15,16 +14,14 @@ export function useAuthStatus() {
     }
 
     if (user) {
-      isUserAdmin()
-        .then((adminStatus) => {
-          setIsAdmin(adminStatus);
-          setAdminChecked(true);
-        })
-        .catch((err) => {
-          console.error("Error checking admin status:", err);
-          setIsAdmin(false);
-          setAdminChecked(true);
-        });
+      // Read roles from custom claim (adjust the namespace as needed)
+      const roles = user['https://parkingsystem-gl.vercel.app/roles'] as string[];
+      if (roles && roles.includes('admin')) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+      setAdminChecked(true);
     }
   }, [isLoading, user]);
 
