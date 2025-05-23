@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Albert_Sans, Hanken_Grotesk } from "next/font/google";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
+import { AuthProvider } from './contexts/AuthContext';
 import "./globals.css";
 
 const geistSans = Hanken_Grotesk({
@@ -27,7 +28,9 @@ export default function RootLayout({
         className={`${geistSans.variable} antialiased`}
       >
         <UserProvider>
+        <AuthProvider>
           {children}
+          </AuthProvider>
         </UserProvider>
       </body>
     </html>

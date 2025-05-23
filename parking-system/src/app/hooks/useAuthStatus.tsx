@@ -1,30 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
-import { isUserAdmin } from "../../actions/isUserAdmin";
+import { useAuth } from "../contexts/AuthContext";
+import { useEffect } from "react";
 
 export function useAuthStatus() {
-  const { user, isLoading } = useUser();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminChecked, setAdminChecked] = useState(false);
-
+  const { user, isLoading, isAdmin, adminChecked } = useAuth();
+  
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
       window.location.href = "/api/auth/login";
-      return;
-    }
-
-    if (user) {
-      isUserAdmin()
-        .then((adminStatus) => {
-          setIsAdmin(adminStatus);
-          setAdminChecked(true);
-        })
-        .catch((err) => {
-          console.error("Error checking admin status:", err);
-          setIsAdmin(false);
-          setAdminChecked(true);
-        });
     }
   }, [isLoading, user]);
 
