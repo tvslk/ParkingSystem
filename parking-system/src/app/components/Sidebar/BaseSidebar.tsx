@@ -3,14 +3,42 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { useAuthStatus } from "@/app/hooks/useAuthStatus";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface BaseSidebarProps {
   fullName: string;
   children?: ReactNode; // For additional navigation items
 }
+ // Add local storage helper functions
+const PROFILE_PIC_KEY = "user_profile_pic";
 
-const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
-  const { user } = useAuthStatus();
+function getPersistentPicture() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(PROFILE_PIC_KEY);
+}
+
+function savePersistentPicture(url: string | null) {
+  if (typeof window === "undefined" || !url) return;
+  localStorage.setItem(PROFILE_PIC_KEY, url);
+}
+
+const BaseSidebar = ({ fullName = "", children }: BaseSidebarProps) => {
+  const { user, isLoading, profilePicture } = useAuthStatus();
+  const [imgSrc, setImgSrc] = useState<string>("/avatar.png");
+  const [imgError, setImgError] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Reset error state when profilePicture changes
+    setImgError(false);
+    
+    if (profilePicture && !isLoading) {
+      console.log("BaseSidebar setting profile picture:", profilePicture);
+      setImgSrc(profilePicture);
+    }
+  }, [profilePicture, isLoading]);
+
+
   return (
     <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-zinc-100 border-r shadow-xl">
       <Link id="home" href="/" className="block">
@@ -105,13 +133,20 @@ const BaseSidebar = ({ fullName, children }: BaseSidebarProps) => {
 
         <div className="border-t pt-4">
           <Link id="profile" href="/profile" className="flex items-center px-4 -mx-2">
-            <img
+          <img
               className="object-cover mx-2 rounded-full h-9 w-9"
-              src={user?.picture || "/avatar.png"}
-              alt="Parking system user"
+              src={imgSrc}
+              alt="Profile"
+              onError={() => {
+                console.log("Image failed to load:", imgSrc);
+                setImgError(true);
+                setImgSrc("/avatar.png");
+              }}
             />
-            <span className="mx-2 font-semibold text-gray-500">{fullName}</span>
-          </Link>
+      <span className="mx-2 font-semibold text-gray-500 truncate break-words max-w-[150px] leading-tight">
+        {fullName}
+      </span>
+              </Link>
         </div>
       </div>
     </aside>
