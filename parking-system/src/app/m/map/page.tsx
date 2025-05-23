@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { useDelayedReady } from "../../hooks/useDelayedReady";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
@@ -23,6 +24,7 @@ const fetcher = (url: string) =>
 const spotsPerPage = 10;
 
 export default function Map() {
+  const router = useRouter(); 
   const [currentPage, setCurrentPage] = useState(1);
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
 
@@ -41,7 +43,7 @@ export default function Map() {
   );
 
   const spotDetail = (spotId: number) => {
-    window.location.href = `/m/map/spot/${spotId}`;
+    router.push(`/m/map/spot/${spotId}`);
   };
 
   if (!isReady) {

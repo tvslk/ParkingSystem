@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../Sidebar/Sidebar";
 import InterfaceButton from "../Buttons/InterfaceButtons";
 
@@ -24,6 +25,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   // State for expiration time from the API
   const [qrExpiresAt, setQrExpiresAt] = useState<string>("—");
+  const router = useRouter();
 
   const fetchQrCode = async () => {
     try {
@@ -85,7 +87,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
                 <InterfaceButton
                   id="show-parking-lot"
                   label="Show parking lot"
-                  onClick={() => (window.location.href = "/map")}
+                  onClick={() => router.push("/map")}
                 />
               </div>
             </div>
@@ -96,7 +98,7 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
                 <h2 className="text-2xl font-semibold text-gray-500">Latest visits</h2>
                 <InterfaceButton
                   id="view-all-visits"
-                  onClick={() => (window.location.href = "/latest-visits")}
+                  onClick={() => router.push("/latest-visits")}
                   label="View all"
                 />
               </div>

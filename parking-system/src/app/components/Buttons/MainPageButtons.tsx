@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function MainPageButtons() {
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
   
   useEffect(() => {
     const ua = navigator.userAgent.toLowerCase();
@@ -16,7 +18,7 @@ export default function MainPageButtons() {
     <div className="flex gap-4">
       <button
         id="main-page-button"
-        onClick={() => (window.location.href = `/api/auth/login?prompt=login&returnTo=${mobilePrefix}/dashboard`)}
+        onClick={() => router.push(`/api/auth/login?prompt=login&returnTo=${mobilePrefix}/dashboard`)}
         className="h-10 px-5 py-3 font-medium text-sm text-[#637381] bg-transparent border border-[#b9babb] rounded-[10px] flex justify-center items-center gap-2.5 transition-colors duration-300 transform hover:bg-zinc-200 focus:outline-none"
       >
         <svg

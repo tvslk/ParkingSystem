@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStatus } from "@/app/hooks/useAuthStatus";
 import InterfaceButton from "@/app/components/Buttons/InterfaceButtons";
 import LoadingOverlay from "@/app/components/LoadingOverlay";
@@ -58,6 +59,7 @@ const useDashboardData = () => {
  
 
 export default function MobileDashboardPage() {
+  const router = useRouter();
   const { isAdmin, isLoading, adminChecked, user } = useAuthStatus();
   const { counts, visitsData } = useDashboardData();
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -134,7 +136,7 @@ export default function MobileDashboardPage() {
         <InterfaceButton
           id="show-parking-lot"
           label="Show parking lot"
-          onClick={() => (window.location.href = "/m/map")}
+          onClick={() => router.push("/m/map")}
         />
       </div>
 
@@ -146,7 +148,7 @@ export default function MobileDashboardPage() {
           </h2>
           <InterfaceButton
             id="view-all-visits"
-            onClick={() => (window.location.href = "/m/latest-visits")}
+            onClick={() => router.push("/m/latest-visits")}
             label="View all"
           />
         </div>
