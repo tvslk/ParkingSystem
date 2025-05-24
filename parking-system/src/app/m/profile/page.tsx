@@ -16,8 +16,16 @@ interface Auth0UserResponse {
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 
+// Helper functions for profile picture persistence
+function getStoredPicture() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('user_profile_pic');
+}
+
 export default function Dashboard() {
-  const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
+  const { user, isLoading, isAdmin, adminChecked, profilePicture } = useAuthStatus();
+  const [imgSrc, setImgSrc] = useState<string>("/avatar.png");
+  const [imgError, setImgError] = useState<boolean>(false);
 
   // Example: fetching user data
   const [userData, setUserData] = useState<Auth0UserResponse | null>(null);
@@ -28,6 +36,28 @@ export default function Dashboard() {
       .then(setUserData)
       .catch((err) => console.error("Error fetching user data:", err));
   }, [user]);
+
+  // Handle profile picture with robust fallbacks
+  useEffect(() => {
+    // Reset error state when sources change
+    setImgError(false);
+    
+    // Priority: profilePicture from context → userData.picture → localStorage → default
+    if (profilePicture && !imgError) {
+      console.log("Profile using picture from auth context:", profilePicture);
+      setImgSrc(profilePicture);
+    } else if (userData?.picture && !imgError) {
+      console.log("Profile using picture from user data:", userData.picture);
+      setImgSrc(userData.picture);
+    } else if (getStoredPicture() && !imgError) {
+      const storedPic = getStoredPicture();
+      console.log("Profile using picture from localStorage:", storedPic);
+      setImgSrc(storedPic!);
+    } else if (imgError) {
+      console.log("Image failed to load, using default avatar");
+      setImgSrc("/avatar.png");
+    }
+  }, [profilePicture, userData?.picture, imgError]);
 
   const isReady = useDelayedReady({
     delay: 1000, 
@@ -55,13 +85,18 @@ export default function Dashboard() {
           {userData ? (
             <div className="bg-zinc-100 rounded-2xl shadow-md p-4 w-full">
               <div className="flex flex-col items-center space-y-6">
-                {userData.picture && (
-                  <img
-                    src={userData.picture}
-                    alt="Profile"
-                    className="w-28 h-28 rounded-full object-cover border-4"
-                  />
-                )}
+                {/* Profile image with error handling */}
+                <img
+                  src={imgSrc}
+                  alt="Profile"
+                  className="w-28 h-28 rounded-full object-cover border-4 border-zinc-200"
+                  onError={() => {
+                    console.log("Profile image failed to load:", imgSrc);
+                    setImgError(true);
+                    setImgSrc("/avatar.png");
+                  }}
+                />
+                
                 <div className="w-full">
                   <label className="block text-xs font-normal px-2 text-zinc-500">Name</label>
                   <input
