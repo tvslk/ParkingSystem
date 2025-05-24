@@ -1,16 +1,45 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuthStatus } from '@/app/hooks/useAuthStatus';
+
+// Helper for accessing stored profile picture
+function getStoredPicture() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('user_profile_pic');
+}
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideNavbar = pathname === '/m';
-  const { isAdmin, user } = useAuthStatus();
+  const { isAdmin, user, profilePicture } = useAuthStatus();
+  const [imgSrc, setImgSrc] = useState<string>("/avatar.png");
+  const [imgError, setImgError] = useState<boolean>(false);
 
   // For admin: dashboard, map, users, logout, profile => 5 icons
   // For user: dashboard, map, logout, profile => 4 icons
   const navCols = isAdmin ? 'grid-cols-5' : 'grid-cols-4';
+
+  // Image source management with fallbacks
+  useEffect(() => {
+    setImgError(false); // Reset error state when dependencies change
+    
+    // Priority order: context profilePicture → user picture → localStorage → default
+    if (profilePicture && !imgError) {
+      console.log("Mobile layout using picture from context:", profilePicture);
+      setImgSrc(profilePicture);
+    } else if (user?.picture && !imgError) {
+      console.log("Mobile layout using picture from user:", user.picture);
+      setImgSrc(user.picture);
+    } else if (getStoredPicture() && !imgError) {
+      const storedPic = getStoredPicture();
+      console.log("Mobile layout using picture from localStorage:", storedPic);
+      setImgSrc(storedPic!);
+    } else if (imgError) {
+      console.log("Image failed to load in mobile layout, using default avatar");
+      setImgSrc("/avatar.png");
+    }
+  }, [profilePicture, user?.picture, imgError]);
 
   return (
     <html lang="en" className="h-full">
@@ -46,7 +75,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               </a>
 
               {/* Map */}
-              <a href="/m/map" id="dashboard" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
+              <a href="/m/map" id="map" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg">
                 <svg
                   className="w-5 h-5 text-gray-500"
                   fill="none"
@@ -108,12 +137,16 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                 </svg>
               </a>
 
-              {/* Profile */}
+              {/* Profile with robust image loading */}
               <a href="/m/profile" id="profile" className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-full">
                 <img
-                  className="object-cover rounded-full h-8 w-8"
-                  src={user?.picture || "/avatar.png"}
-                  alt="Parking system user"
+                  className="object-cover rounded-full h-8 w-8 border border-gray-200"
+                  src={imgSrc}
+                  alt="Profile"
+                  onError={() => {
+                    console.log("Profile image failed to load in mobile layout:", imgSrc);
+                    setImgError(true);
+                  }}
                 />
               </a>
             </div>
