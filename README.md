@@ -23,6 +23,8 @@ SpotMonitoring is a parking lot monitoring and reservation system. This backend 
 
 ### API Endpoints
 - **`/api/auth/[auth0]`**: Api self-managed by Auth0. Handles sign up and login.
+- **`/api/auth/check-admin`**: Checks if the current user has admin privileges.
+- **`/api/auth/token`**: Retrieves an authentication token.
 - **`/api/qr/generate`**: Generates a QR code for gate access.
 - **`/api/latest-visits`**: Retrieves recent parking spots usage logs.
 - **`/api/latest-visits/spot/[spotId]`**: Retrieves recent parking spot usage log.
@@ -140,6 +142,8 @@ backend/
 
 ### API Endpoints
 - **`/api/auth/[auth0]`**: Api self-managed by Auth0. Handles sign up and login.
+- **`/api/auth/check-admin`**: Checks if the current user has admin privileges.
+- **`/api/auth/token`**: Retrieves an authentication token.
 - **`/api/qr/generate`**: Generates a QR code for gate access.
 - **`/api/latest-visits`**: Retrieves recent parking spots usage logs.
 - **`/api/latest-visits/spot/[spotId]`**: Retrieves recent parking spot usage log.
