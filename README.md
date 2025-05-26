@@ -8,6 +8,43 @@ SpotMonitoring is a parking lot monitoring and reservation system. This backend 
 
 **Production version** of this app is available on **https://parkingsystem-gl.vercel.app/**
 
+## Technology Stack
+
+SpotMonitoring Backend leverages a modern web development stack to deliver a robust, scalable, and secure parking management solution:
+
+- **Next.js**: Provides a full-stack React framework for building server-rendered and statically generated web applications. Enables API routes, server-side rendering, and seamless integration with React components.
+- **React**: Powers the frontend user interfaces, enabling dynamic, component-based dashboards for both users and administrators.
+- **MySQL**: Serves as the primary relational database, storing user data, parking spot statuses, reservations, and visit logs.
+- **Tailwind CSS**: Utilized for rapid UI development with utility-first CSS classes, ensuring a responsive and modern design across all dashboards.
+- **Auth0**: Handles authentication and authorization, including role-based access control (RBAC) for users and admins. Auth0 secures API endpoints and manages user sessions.
+- **Vercel**: The application is deployed on Vercel, providing fast, reliable, and scalable hosting with zero-config deployments and automatic CI/CD integration.
+
+---
+
+## Authentication & Authorization
+
+- **Auth0 Integration**: The backend uses Auth0 for secure authentication, supporting social logins and email/password sign-ups.
+- **Role-Based Access Control (RBAC)**: Admin and user roles are managed via Auth0, restricting access to sensitive endpoints and admin dashboards.
+- **API Security**: All API endpoints are protected using JWT tokens issued by Auth0. Middleware ensures only authorized users can access protected resources.
+
+---
+
+## Deployment
+
+- **Vercel Hosting**: The backend is continuously deployed to [Vercel](https://vercel.com/), ensuring high availability and seamless updates.
+- **Environment Variables**: Sensitive configuration (database credentials, Auth0 secrets) is managed via environment variables, supporting secure deployments across environments.
+- **CI/CD**: Vercel automatically builds and deploys the application on every push to the main branch, streamlining the development workflow.
+
+---
+
+## Styling
+
+- **Tailwind CSS**: All UI components are styled using Tailwind CSS, allowing for rapid prototyping and consistent design language.
+- **Responsive Design**: Dashboards and pages are fully responsive, providing a seamless experience on both desktop and mobile devices.
+
+---
+
+
 ## Features
 
 ### User Features
@@ -140,6 +177,15 @@ backend/
 ### Admin Dashboard
 - Manage parking spots, reservations, and users.
 
+## Key Integrations
+
+- **QR Code Generation**: The backend provides endpoints for generating QR codes, enabling secure and contactless gate access for users.
+- **Real-Time Monitoring**: Admin dashboards display real-time parking spot statuses, leveraging efficient database queries and API endpoints.
+- **Mobile Support**: The project structure includes dedicated routes and layouts for mobile devices, ensuring usability on smartphones and tablets.
+
+---
+
+
 ### API Endpoints
 - **`/api/auth/[auth0]`**: Api self-managed by Auth0. Handles sign up and login.
 - **`/api/auth/check-admin`**: Checks if the current user has admin privileges.
@@ -185,3 +231,5 @@ This project is proprietary and not open-source. Contact the author for licensin
 
 ### Admin Dashboard
 ![Admin Dashboard](https://i.imgur.com/n56O3PH.png)
+
+this project uses vercel for deploy, tailwind css, auth0 for role based auth etc. next js, react ...

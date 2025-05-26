@@ -98,11 +98,11 @@ export default function Map() {
       <main className="flex-1 flex items-start justify-center p-2">
         <div className="w-full mx-2">
           <div className="bg-zinc-100 rounded-2xl shadow-md p-4 flex flex-col flex-grow">
-            {/* Vertical list of parking spots */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Vertical list of parking spots - fixed height to prevent jumping */}
+            <div className="grid grid-cols-2 gap-4 min-h-[500px]">
               {isDataIncomplete ? (
                 // Show small spinner when loading
-                <div className="flex-grow flex items-center justify-center col-span-2 min-h-[200px]">
+                <div className="flex-grow flex items-center justify-center col-span-2 min-h-[500px]">
                   <div className="w-12 h-12 border-4 border-zinc-200 border-t-zinc-500 rounded-full animate-spin" />
                 </div>
               ) : (
@@ -147,12 +147,7 @@ export default function Map() {
                     onPageChange={setCurrentPage}
                   />
                   
-                  {/* Legend for mobile - compact version */}
-                  <div className="flex items-center gap-2 ml-1">
-                    <LegendDot color="bg-emerald-700" />
-                    <LegendDot color="bg-red-700" />
-                    <LegendDot color="bg-yellow-600" />
-                  </div>
+                  
                 </div>
               </div>
             )}
@@ -174,61 +169,99 @@ const PaginationControls = ({
   totalPages,
   onPageChange,
 }: PaginationProps) => {
+  const pageNumbers = Array.from(
+    { length: Math.min(5, totalPages) },
+    (_, i) => i + Math.max(1, Math.min(currentPage - 2, totalPages - 4))
+  );
+
   return (
-    <div className="flex items-center gap-2">
-      {/* Previous button */}
-      <button
-        id="prev-button"
-        onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-        disabled={currentPage === 1}
-        className={`h-8 px-2 text-sm font-medium text-gray-600 rounded-lg flex items-center
-          ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}
-      >
-        <svg
-          width="17"
-          height="17"
-          viewBox="0 0 17 17"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M11.325 14.825C11.175 14.825 11.025 14.775 10.925 14.65L5.27495 8.90002C5.04995 8.67502 5.04995 8.32503 5.27495 8.10002L10.925 2.35002C11.15 2.12502 11.5 2.12502 11.725 2.35002C11.95 2.57502 11.95 2.92502 11.725 3.15002L6.47495 8.50003L11.75 13.85C11.975 14.075 11.975 14.425 11.75 14.65C11.6 14.75 11.475 14.825 11.325 14.825Z"
-            fill="currentColor"
-          />
-        </svg>
-      </button>
-      
-      {/* Current page / total */}
-      <span className="text-sm text-gray-600">
-        {currentPage} / {totalPages}
-      </span>
-      
-      {/* Next button */}
-      <button
-        id="next-button"
-        onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-        disabled={currentPage === totalPages}
-        className={`h-8 px-2 text-sm font-medium text-gray-600 rounded-lg flex items-center
-          ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}
-      >
-        <svg
-          width="17"
-          height="17"
-          viewBox="0 0 17 17"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M5.67495 14.825C5.52495 14.825 5.39995 14.775 5.27495 14.675C5.04995 14.45 5.04995 14.1 5.27495 13.875L10.525 8.50003L5.27495 3.15002C5.04995 2.92502 5.04995 2.57502 5.27495 2.35002C5.49995 2.12502 5.84995 2.12502 6.07495 2.35002L11.725 8.10002C11.95 8.32503 11.95 8.67502 11.725 8.90002L6.07495 14.65C5.97495 14.75 5.82495 14.825 5.67495 14.825Z"
-            fill="currentColor"
-          />
-        </svg>
-      </button>
+    <div className="flex justify-center bg-white">
+      <ul className="flex items-center justify-center gap-1">
+        {/* Previous button */}
+        <li>
+          <button
+            id="prev-button"
+            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className={`inline-flex h-8 items-center justify-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100
+              ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            <span>
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 17 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.325 14.825C11.175 14.825 11.025 14.775 10.925 14.65L5.27495 8.90002C5.04995 8.67502 5.04995 8.32503 5.27495 8.10002L10.925 2.35002C11.15 2.12502 11.5 2.12502 11.725 2.35002C11.95 2.57502 11.95 2.92502 11.725 3.15002L6.47495 8.50003L11.75 13.85C11.975 14.075 11.975 14.425 11.75 14.65C11.6 14.75 11.475 14.825 11.325 14.825Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span className="max-sm:hidden">Previous</span>
+          </button>
+        </li>
+
+        {/* Page number buttons - Show only on medium screens and up */}
+        {pageNumbers.map((pageNumber, index) => (
+          <li key={index} className="hidden sm:block">
+            {pageNumber < 0 ? (
+              <span className="flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-gray-600">
+                ...
+              </span>
+            ) : (
+              <button
+                id={`page-button-${pageNumber}`}
+                onClick={() => onPageChange(pageNumber)}
+                className={`flex h-8 min-w-8 items-center justify-center text-sm rounded-lg px-2 
+                  ${
+                    currentPage === pageNumber
+                      ? "bg-zinc-500 text-white shadow-sm"
+                      : "text-zinc-600 hover:bg-gray-100"
+                  }`}
+              >
+                {pageNumber}
+              </button>
+            )}
+          </li>
+        ))}
+
+        {/* Current page indicator - Only on small screens */}
+        <li className="sm:hidden">
+          <span className="flex h-8 items-center justify-center px-2 text-sm text-gray-600">
+            {currentPage} / {totalPages}
+          </span>
+        </li>
+
+        {/* Next button */}
+        <li>
+          <button
+            id="next-button"
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className={`inline-flex h-8 items-center justify-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100
+              ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            <span className="max-sm:hidden">Next</span>
+            <span>
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 17 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M5.67495 14.825C5.52495 14.825 5.39995 14.775 5.27495 14.675C5.04995 14.45 5.04995 14.1 5.27495 13.875L10.525 8.50003L5.27495 3.15002C5.04995 2.92502 5.04995 2.57502 5.27495 2.35002C5.49995 2.12502 5.84995 2.12502 6.07495 2.35002L11.725 8.10002C11.95 8.32503 11.95 8.67502 11.725 8.90002L6.07495 14.65C5.97495 14.75 5.82495 14.825 5.67495 14.825Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+          </button>
+        </li>
+      </ul>
     </div>
   );
 };
-
-// Simplified legend dot for mobile view
-const LegendDot = ({ color }: { color: string }) => (
-  <div className={`w-3 h-3 rounded-full ${color}`} />
-);
