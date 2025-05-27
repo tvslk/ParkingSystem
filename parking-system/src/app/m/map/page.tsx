@@ -149,8 +149,6 @@ export default function Map() {
                     totalPages={displayedTotalPages}
                     onPageChange={setCurrentPage}
                   />
-                  
-                  
                 </div>
               </div>
             )}

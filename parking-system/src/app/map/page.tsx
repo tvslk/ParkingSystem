@@ -39,7 +39,7 @@ export default function Map() {
     condition: !isLoading && !!user,
   });
 
-  // Pull in data + isValidating to detect loading when changing pages
+  // Pull in data + isValidating to detect background refresh
   const { data: spotsData, isValidating } = useSWR<SpotsResponse>(
     isReady
       ? `/api/parking-spot?page=${currentPage}&limit=${spotsPerPage}&sort=spot_id&order=asc`
@@ -88,11 +88,10 @@ export default function Map() {
     return <LoadingOverlay />;
   }
 
-  // If we don't have data or total pages, it's initial load; hide pagination + legend
+  // Show spinner only on initial load (no data or total yet).
+  // Remove extra logic so polling doesn't trigger spinner again.
   const initialLoadIncomplete = !spotsData || displayedTotalPages < 1;
-  // If we're fetching new data but already have some, keep pagination + legend visible
-  const pageLoading = isValidating && !!spotsData;
-  const isDataIncomplete = initialLoadIncomplete || pageLoading;
+  const isDataIncomplete = initialLoadIncomplete;
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -107,7 +106,7 @@ export default function Map() {
         <div className="bg-zinc-100 rounded-2xl shadow-md p-6 flex flex-col flex-grow">
           <div className="grid grid-cols-6 gap-6 flex-grow p-4">
             {isDataIncomplete ? (
-              // Show small spinner in place of the spot grid
+              // Show small spinner ONLY on initial load
               <div className="flex-grow flex items-center justify-center col-span-6">
                 <div className="w-12 h-12 border-4 border-zinc-200 border-t-zinc-500 rounded-full animate-spin" />
               </div>
