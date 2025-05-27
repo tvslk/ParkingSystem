@@ -45,7 +45,10 @@ export default function Map() {
       ? `/api/parking-spot?page=${currentPage}&limit=${spotsPerPage}&sort=spot_id&order=asc`
       : null,
     fetcher,
-    { keepPreviousData: true }
+    {
+      keepPreviousData: true,
+      refreshInterval: 15000, // Poll every 15 seconds
+    }
   );
 
   useEffect(() => {

@@ -38,6 +38,7 @@ export default function ParkingSpotStatus() {
 
   useEffect(() => {
     if (!id) return;
+
     const fetchData = async () => {
       try {
         const spot = await getSpotData(id);
@@ -50,14 +51,21 @@ export default function ParkingSpotStatus() {
         setLoading(false);
       }
     };
+
     fetchData();
+
+    // Minimal polling addition
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 15000);
+
+    return () => clearInterval(intervalId);
   }, [id]);
-  
     const formatVisit = (visit: Visit) => {
     const entryDate = formatCustomDateTime(visit.startDate);
     const exitDate = visit.endDate 
       ? formatCustomDateTime(visit.endDate)
-      : 'prítomnosť';
+      : 'now';
     return `${entryDate} - ${exitDate}`;
   };
 

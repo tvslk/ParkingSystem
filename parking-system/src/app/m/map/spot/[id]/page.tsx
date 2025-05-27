@@ -36,7 +36,8 @@ export default function MobileParkingSpotStatus() {
 
   useEffect(() => {
     if (!id) return;
-    (async () => {
+  
+    const fetchData = async () => {
       try {
         const spot = await getSpotData(id);
         const visits = await getVisitHistory(id);
@@ -47,7 +48,14 @@ export default function MobileParkingSpotStatus() {
       } finally {
         setLoading(false);
       }
-    })();
+    };
+  
+    // Initial call
+    fetchData();
+  
+    // Minimal polling addition
+    const intervalId = setInterval(fetchData, 15000);
+    return () => clearInterval(intervalId);
   }, [id]);
 
   if (authLoading || loading) {
