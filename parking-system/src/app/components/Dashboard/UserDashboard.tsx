@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../Sidebar/Sidebar";
 import InterfaceButton from "../Buttons/InterfaceButtons";
@@ -21,30 +21,61 @@ interface UserDashboardProps {
 }
 
 export default function UserDashboard({ counts, visitsData }: UserDashboardProps) {
-  // State to hold QR image Data URL
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  // State for expiration time from the API
   const [qrExpiresAt, setQrExpiresAt] = useState<string>("—");
+  const [qrLoading, setQrLoading] = useState<boolean>(true);
+  const [qrError, setQrError] = useState<boolean>(false);
+  const [qrRetries, setQrRetries] = useState<number>(0);
   const router = useRouter();
 
-  const fetchQrCode = async () => {
+  const fetchQrCode = async (isRetry = false) => {
+    if (!isRetry) {
+      setQrLoading(true);
+      setQrError(false);
+    }
+    
     try {
       const response = await fetch("/api/qr/generate");
+      if (!response.ok) {
+        throw new Error(`QR API responded with status ${response.status}`);
+      }
+      
       const data = await response.json();
+      
       if (data?.qrCodeDataUrl) {
         setQrDataUrl(data.qrCodeDataUrl);
-      }
-      if (data?.expiresAt) {
-        setQrExpiresAt(formatCustomDateTime(data.expiresAt));
+        if (data?.expiresAt) {
+          setQrExpiresAt(formatCustomDateTime(data.expiresAt));
+        }
+        setQrLoading(false);
+        setQrRetries(0); // Reset retry counter on success
+      } else {
+        throw new Error("No QR code data in response");
       }
     } catch (error) {
       console.error("Error fetching QR code:", error);
+      setQrError(true);
+      setQrLoading(false);
+      
+      // Auto-retry logic (max 3 retries)
+      if (qrRetries < 3) {
+        setQrRetries(prev => prev + 1);
+        setTimeout(() => {
+          fetchQrCode(true);
+        }, 2000); // Wait 2 seconds before retry
+      }
     }
   };
 
-  useEffect(() => {
-    fetchQrCode();
-  }, []);
+  const isMounted = useRef(true);
+
+useEffect(() => {
+  fetchQrCode();
+  
+  return () => {
+    isMounted.current = false;
+  };
+}, []);
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -124,28 +155,50 @@ export default function UserDashboard({ counts, visitsData }: UserDashboardProps
 
             {/* QR Code Card */}
             <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-1 flex flex-col h-full">
-              <h2 className="text-sm mb-2 text-center text-gray-500">
-                <span className="font-bold">QR code</span>
-                <span className="font-light"> is valid until </span>
-                <span className="font-bold">{qrExpiresAt}</span>
-              </h2>
-              <div className="flex-grow flex items-center justify-center w-full">
-                {qrDataUrl ? (
-                  <img
-                    src={qrDataUrl}
-                    alt="Gate QR Code"
-                    className="w-4/5 max-w-[200px] aspect-square border-2 border-gray-300 rounded-md"
-                  />
-                ) : (
-                  <div className="w-4/5 max-w-[200px] aspect-square bg-gray-200 rounded-md flex items-center justify-center">
-                    <span className="text-gray-600 text-sm">Loading...</span>
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 w-full flex justify-center">
-                <InterfaceButton id="regenerate-qr" label="Regenerate" onClick={fetchQrCode} />
-              </div>
-            </div>
+  <h2 className="text-sm mb-2 text-center text-gray-500">
+    <span className="font-bold">QR code</span>
+    <span className="font-light"> is valid until </span>
+    <span className="font-bold">{qrExpiresAt}</span>
+  </h2>
+  <div className="flex-grow flex items-center justify-center w-full">
+    {qrLoading ? (
+      <div className="w-4/5 max-w-[200px] aspect-square bg-gray-200 rounded-md flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-gray-300 border-t-zinc-500 rounded-full animate-spin"></div>
+      </div>
+    ) : qrError ? (
+      <div className="w-4/5 max-w-[200px] aspect-square bg-gray-100 rounded-md flex flex-col items-center justify-center p-4">
+        <span className="text-red-500 text-sm text-center mb-2">Error loading QR code</span>
+        <button 
+          onClick={() => {
+            setQrRetries(0);
+            fetchQrCode();
+          }}
+          className="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 px-3 py-1 rounded"
+        >
+          Retry
+        </button>
+      </div>
+    ) : (
+      <img
+        src={qrDataUrl || "/placeholder-qr.png"}
+        alt="Gate QR Code"
+        className="w-4/5 max-w-[200px] aspect-square border-2 border-gray-300 rounded-md"
+        onError={() => {
+          console.error("QR image failed to load");
+          setQrError(true);
+        }}
+      />
+    )}
+  </div>
+  <div className="mt-4 w-full flex justify-center">
+    <InterfaceButton 
+      id="regenerate-qr" 
+      label={qrLoading ? "Loading..." : "Regenerate"} 
+      onClick={() => fetchQrCode()} 
+      disabled={qrLoading}
+    />
+  </div>
+</div>
           </div>
         </div>
       </div>
