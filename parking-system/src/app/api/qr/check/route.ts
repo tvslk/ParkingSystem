@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const qrQuery = `
       SELECT user_id, created_at, expires_at
       FROM user_qr_codes
-      WHERE qr_code = ?
+      WHERE code = ?
       LIMIT 1
     `;
     interface QrRow {
