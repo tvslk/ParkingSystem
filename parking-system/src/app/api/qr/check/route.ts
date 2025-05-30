@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // 2) Validate timestamps
     const now = new Date();
-    if (now < new Date(valid_from) || now > new Date(valid_until)) {
+    if (now < new Date(created_at) || now > new Date(expires_at)) {
       return NextResponse.json({ error: 'QR code expired or not yet active' }, { status: 400 });
     }
 
