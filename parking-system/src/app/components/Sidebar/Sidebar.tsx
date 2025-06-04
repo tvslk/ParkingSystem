@@ -5,12 +5,16 @@ import BaseSidebar from "./BaseSidebar";
 
 const Sidebar = () => {
   const { isAdmin, user } = useAuthStatus();
-  const fullName = user?.name || "User";
+
+  let rawName = user?.name || user?.nickname || user?.email || "User";
+  let sanitizedName = rawName.includes("@") ? rawName.split("@")[0] : rawName;
+  sanitizedName =
+    sanitizedName.length > 25 ? sanitizedName.slice(0, 25) + "…" : sanitizedName;
 
   if (isAdmin) {
-    return <AdminSidebar fullName={fullName} />;
+    return <AdminSidebar fullName={sanitizedName} />;
   } else {
-    return <BaseSidebar fullName={fullName} />;
+    return <BaseSidebar fullName={sanitizedName} />;
   }
 };
 
