@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: any) {
     const query = `
       SELECT id, user_id, start_date, end_date
       FROM visits
-      WHERE user_id = $1
+      WHERE user_id = ?
       ORDER BY start_date DESC
     `;
     const [rows] = await pool.query(query, [userId]);

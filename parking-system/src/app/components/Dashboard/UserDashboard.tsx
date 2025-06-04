@@ -17,10 +17,10 @@ const formatSpotId = (id: number | string) =>
 
 interface UserDashboardProps {
   counts: { available: number; occupied: number };
-  visitsData: any[];
+  myVisitsData: any[];
 }
 
-export default function UserDashboard({ counts, visitsData }: UserDashboardProps) {
+export default function UserDashboard({ counts, myVisitsData }: UserDashboardProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [qrExpiresAt, setQrExpiresAt] = useState<string>("—");
   const [qrLoading, setQrLoading] = useState<boolean>(true);
@@ -123,82 +123,85 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Latest Visits Card */}
+            {/* My Visits Card */}
             <div className="bg-zinc-100 rounded-2xl shadow-md p-6 lg:col-span-2">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold text-gray-500">Latest visits</h2>
+                <h2 className="text-2xl font-semibold text-gray-500">My visits</h2>
                 <InterfaceButton
-                  id="view-all-visits"
-                  onClick={() => router.push("/latest-visits")}
+                  id="view-all-my-visits"
+                  onClick={() => router.push("/latest-visits/my-visits")}
                   label="View all"
                 />
               </div>
               <ul>
-                {visitsData?.length ? (
-                  visitsData.slice(0, 5).map((item: any, index: number) => (
+                {(myVisitsData?.length ?? 0) > 0 ? (
+                  myVisitsData.slice(0, 5).map((item: any, index: number) => (
                     <li
-                      key={`${item.id || item.created_at}-${index}`}
+                      key={`${item.id}-${index}`}
                       className={`py-2 border-b text-gray-500 ${
                         index === 0 ? "border-t" : ""
                       }`}
                     >
-                      {formatCustomDateTime(item.created_at)} -{" "}
-                      {formatSpotId(item.spot_id)} -{" "}
-                      {item.availability === 1 ? "Departed" : "Arrived"}
+                      {formatCustomDateTime(item.start_date)}
+                      {item.end_date ? (
+                        <> &rarr; {formatCustomDateTime(item.end_date)}</>
+                      ) : (
+                        <> &mdash; Active Visit</>
+                      )}
                     </li>
                   ))
                 ) : (
-                  <li className="py-2 text-gray-500">No data available.</li>
+                  <li className="py-2 text-gray-500">No personal visits recorded yet.</li>
                 )}
               </ul>
             </div>
 
             {/* QR Code Card */}
             <div className="bg-zinc-100 rounded-2xl shadow-md p-4 lg:col-span-1 flex flex-col h-full">
-  <h2 className="text-sm mb-2 text-center text-gray-500">
-    <span className="font-bold">QR code</span>
-    <span className="font-light"> is valid until </span>
-    <span className="font-bold">{qrExpiresAt}</span>
-  </h2>
-  <div className="flex-grow flex items-center justify-center w-full">
-    {qrLoading ? (
-      <div className="w-4/5 max-w-[200px] aspect-square bg-gray-200 rounded-md flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-300 border-t-zinc-500 rounded-full animate-spin"></div>
-      </div>
-    ) : qrError ? (
-      <div className="w-4/5 max-w-[200px] aspect-square bg-gray-100 rounded-md flex flex-col items-center justify-center p-4">
-        <span className="text-red-500 text-sm text-center mb-2">Error loading QR code</span>
-        <button 
-          onClick={() => {
-            setQrRetries(0);
-            fetchQrCode();
-          }}
-          className="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 px-3 py-1 rounded"
-        >
-          Retry
-        </button>
-      </div>
-    ) : (
-      <img
-        src={qrDataUrl || "/placeholder-qr.png"}
-        alt="Gate QR Code"
-        className="w-4/5 max-w-[200px] aspect-square border-2 border-gray-300 rounded-md"
-        onError={() => {
-          console.error("QR image failed to load");
-          setQrError(true);
-        }}
-      />
-    )}
-  </div>
-  <div className="mt-4 w-full flex justify-center">
-    <InterfaceButton 
-      id="regenerate-qr" 
-      label={qrLoading ? "Loading..." : "Regenerate"} 
-      onClick={() => fetchQrCode()} 
-      disabled={qrLoading}
-    />
-  </div>
-</div>
+              <h2 className="text-sm mb-2 text-center text-gray-500">
+                <span className="font-bold">QR code</span>
+                <span className="font-light"> is valid until </span>
+                <span className="font-bold">{qrExpiresAt}</span>
+              </h2>
+              <div className="flex-grow flex items-center justify-center w-full">
+                {qrLoading ? (
+                  <div className="w-4/5 max-w-[200px] aspect-square bg-gray-200 rounded-md flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-gray-300 border-t-zinc-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : qrError ? (
+                  <div className="w-4/5 max-w-[200px] aspect-square bg-gray-100 rounded-md flex flex-col items-center justify-center p-4">
+                    <span className="text-red-500 text-sm text-center mb-2">Error loading QR code</span>
+                    <button 
+                      onClick={() => {
+                        setQrRetries(0);
+                        fetchQrCode();
+                      }}
+                      className="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 px-3 py-1 rounded"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <img
+                    src={qrDataUrl || "/placeholder-qr.png"}
+                    alt="Gate QR Code"
+                    className="w-4/5 max-w-[200px] aspect-square border-2 border-gray-300 rounded-md"
+                    onError={() => {
+                      console.error("QR image failed to load");
+                      setQrError(true);
+                    }}
+                  />
+                )}
+              </div>
+              <div className="mt-4 w-full flex justify-center">
+                <InterfaceButton 
+                  id="regenerate-qr" 
+                  label={qrLoading ? "Loading..." : "Regenerate"} 
+                  onClick={() => fetchQrCode()} 
+                  disabled={qrLoading}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

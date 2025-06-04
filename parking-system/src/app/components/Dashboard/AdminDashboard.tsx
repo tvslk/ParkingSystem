@@ -87,8 +87,11 @@ export default function AdminDashboard({ counts, visitsData, userVisitsData }: A
                       key={`${item.id || item.created_at}-${index}`}
                       className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
                     >
-                      {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} -{" "}
-                      {item.availability === 1 ? "Departed" : "Arrived"}
+                      <span className="font-bold">{formatSpotId(item.spot_id)}</span>
+                      {" – "}
+                      {item.availability === 1 ? "Arrived" : "Departed"}
+                      {" – "}
+                      {formatCustomDateTime(item.created_at)}
                     </li>
                   ))
                 ) : (

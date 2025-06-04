@@ -31,10 +31,17 @@ export default function Dashboard() {
     { refreshInterval: 5000 }
   );
 
+  // NEW: Fetch the current user's personal visits
+  const { data: myVisitsData, error: myVisitsError } = useSWR(
+    user && !isAdmin ? `/api/latest-visits/user/${user.sub}` : null,
+    fetcher,
+    { refreshInterval: 5000 }
+  );
+
   const isReady = useDelayedReady({
     delay: 1000,
-    dependencies: [isLoading, user, adminChecked],
-    condition: !isLoading && !!user && adminChecked
+    dependencies: [isLoading, user, adminChecked, countsData, visitsData, userVisitsData, myVisitsData],
+    condition: !isLoading && !!user && adminChecked && ((isAdmin && userVisitsData) || (!isAdmin && myVisitsData)),
   });
 
   if (!isReady) {
@@ -44,12 +51,13 @@ export default function Dashboard() {
   if (countsError) console.error("Error fetching counts:", countsError);
   if (visitsError) console.error("Error fetching visits:", visitsError);
   if (userVisitsError) console.error("Error fetching user visits:", userVisitsError);
+  if (myVisitsError) console.error("Error fetching my visits:", myVisitsError);
 
   const counts = countsData || { available: 0, occupied: 0 };
 
   if (isAdmin) {
     return <AdminDashboard counts={counts} visitsData={visitsData} userVisitsData={userVisitsData} />;
   } else {
-    return <UserDashboard counts={counts} visitsData={visitsData} />;
+    return <UserDashboard counts={counts} myVisitsData={myVisitsData || []} />;
   }
 }
