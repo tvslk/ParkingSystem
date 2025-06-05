@@ -18,9 +18,10 @@ const formatSpotId = (id: number | string) =>
 interface UserDashboardProps {
   counts: { available: number; occupied: number };
   myVisitsData: any[];
+  userId?: string;
 }
 
-export default function UserDashboard({ counts, myVisitsData }: UserDashboardProps) {
+export default function UserDashboard({ counts, myVisitsData, userId }: UserDashboardProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [qrExpiresAt, setQrExpiresAt] = useState<string>("—");
   const [qrLoading, setQrLoading] = useState<boolean>(true);
@@ -129,7 +130,7 @@ useEffect(() => {
                 <h2 className="text-2xl font-semibold text-gray-500">My visits</h2>
                 <InterfaceButton
                   id="view-all-my-visits"
-                  onClick={() => router.push("/latest-visits/my-visits")}
+                  onClick={() => router.push(`/latest-visits/user/${userId}`)}
                   label="View all"
                 />
               </div>

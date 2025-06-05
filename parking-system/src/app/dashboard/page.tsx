@@ -58,6 +58,6 @@ export default function Dashboard() {
   if (isAdmin) {
     return <AdminDashboard counts={counts} visitsData={visitsData} userVisitsData={userVisitsData} />;
   } else {
-    return <UserDashboard counts={counts} myVisitsData={myVisitsData || []} />;
+    return <UserDashboard counts={counts} myVisitsData={myVisitsData || []} userId={user.sub} />;
   }
 }
