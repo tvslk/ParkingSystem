@@ -3,7 +3,7 @@ import React from "react";
 interface ListWindowProps {
   title: string;
   items: any[];
-  formatItem: (item: any) => string;
+  formatItem: (item: any) => string | JSX.Element;
   centerContent?: boolean;
   className?: string;
 }

@@ -1,18 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ListWindow from "../components/ListWindow";
-import Sidebar from "../components/Sidebar/Sidebar";
+import ListWindow from "../../components/ListWindow";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import useSWR from "swr";
-import { useAuthStatus } from "../hooks/useAuthStatus";
-import { useDelayedReady } from "../hooks/useDelayedReady";
-import LoadingOverlay from "../components/LoadingOverlay";
+import { useAuthStatus } from "../../hooks/useAuthStatus";
+import { useDelayedReady } from "../../hooks/useDelayedReady";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
-
-const formatSpotId = (spotId: number | string) =>
-  "PS" + spotId.toString().padStart(3, "0");
 
 function formatCustomDateTime(dateString: string): string {
   const date = new Date(dateString);
@@ -23,23 +20,37 @@ function formatCustomDateTime(dateString: string): string {
   ).padStart(2, '0')}`;
 }
 
-const formatVisit = (visit: any) => {
+const formatUserVisit = (visit: any) => {
+  const rawName =
+    visit.user?.name ||
+    visit.user?.nickname ||
+    visit.user?.email ||
+    "Unknown";
+  let sanitizedName = rawName.includes("@")
+    ? rawName.split("@")[0]
+    : rawName;
+  sanitizedName =
+    sanitizedName.length > 18
+      ? sanitizedName.slice(0, 18) + "…"
+      : sanitizedName;
+
   return (
     <>
-      <span className="font-bold">{formatSpotId(visit.spot_id)}</span>
-      {" – "}
-      {visit.availability === 1 ? "Arrived" : "Departed"}
-      {" – "}
-      {formatCustomDateTime(visit.created_at)}
+      <span className="font-semibold">{sanitizedName}</span>
+      {" — "}
+      {formatCustomDateTime(visit.start_date)}
+      {visit.end_date && (
+        <> &rarr; {formatCustomDateTime(visit.end_date)}</>
+      )}
     </>
   );
 };
 
-export default function Dashboard() {
+export default function UserVisits() {
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
   
-  const { data: visitsData, error } = useSWR(
-    user ? "/api/latest-visits" : null, 
+  const { data: userVisitsData, error } = useSWR(
+    user ? "/api/latest-visits/user" : null, 
     fetcher
   );
 
@@ -53,13 +64,10 @@ export default function Dashboard() {
     return <LoadingOverlay />;
   }
 
-  if (error) return <div>Error loading visits.</div>;
+  if (error) return <div>Error loading user visits.</div>;
 
-  const fullName = user?.name || "User";
-  const headerTitle = isAdmin
-    ? "Latest parking spot updates"
-    : `${fullName}'s Latest Visits`;
-  const listWindowTitle = isAdmin ? "List of all spot logs" : "Latest visits";
+  const headerTitle = "Latest user visits";
+  const listWindowTitle = "List of all user visits";
 
   return (
     <div className="flex h-screen bg-white">
@@ -73,8 +81,8 @@ export default function Dashboard() {
           <div className="w-full mx-auto">
             <ListWindow
               title={listWindowTitle}
-              items={visitsData || []}
-              formatItem={formatVisit}
+              items={userVisitsData || []}
+              formatItem={formatUserVisit}
             />
           </div>
         </div>
