@@ -36,29 +36,31 @@ const formatUserVisit = (visit: any) => {
 
 export default function UserVisitDetails() {
   const { userId } = useParams();
-  const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
+  const { user: authUser, isLoading, isAdmin, adminChecked } = useAuthStatus(); // Renamed to authUser to avoid conflict
   
-  const { data: myVisitsData, error } = useSWR(
-    user ? `/api/latest-visits/user/${userId}` : null, 
+  // myVisitsData will now be an object: { user: UserObject, visits: Visit[] }
+  const { data: apiResponse, error } = useSWR(
+    authUser ? `/api/latest-visits/user/${userId}` : null, 
     fetcher
   );
 
   const isReady = useDelayedReady({
     delay: 1000, 
-    dependencies: [isLoading, user, adminChecked],
-    condition: !isLoading && !!user && adminChecked 
+    dependencies: [isLoading, authUser, adminChecked, apiResponse !== undefined], 
+    condition: !isLoading && !!authUser && adminChecked && apiResponse !== undefined
   });
 
   if (!isReady) {
     return <LoadingOverlay />;
   }
 
-  if (error) return <div>Error loading user visits.</div>;
+  if (error) return <div>Error loading user visits. Details: {error.message}</div>;
+  if (!apiResponse) return <LoadingOverlay />; 
 
-  // We can retrieve user name if available in the first visit record
-  const userName = myVisitsData?.[0]?.user?.name || 
-                  myVisitsData?.[0]?.user?.nickname || 
-                  `User ${userId}`;
+  const fetchedUser = apiResponse.user;
+  const userVisits = apiResponse.visits;
+
+  const userName = fetchedUser?.name || fetchedUser?.nickname || "User";
   
   const headerTitle = `${userName}'s visits history`;
   const listWindowTitle = "List of visits";
@@ -75,7 +77,7 @@ export default function UserVisitDetails() {
           <div className="w-full mx-auto">
             <ListWindow
               title={listWindowTitle}
-              items={myVisitsData || []}
+              items={userVisits || []} 
               formatItem={formatUserVisit}
             />
           </div>

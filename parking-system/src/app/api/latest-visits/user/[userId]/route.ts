@@ -3,75 +3,92 @@ import pool from '../../../../../../lib/db';
 import { getSession } from '@auth0/nextjs-auth0';
 import { createAccessToken } from '@/actions/createAccessToken';
 
-export async function GET(request: NextRequest, { params }: { params: { userId: string }}) {
+export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+  const { userId } = params;
+
   try {
     const session = await getSession();
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = params.userId;
-    
-    // 1. Fetch visits for this user
-    const query = `
-      SELECT id, user_id, start_date, end_date
-      FROM visits
-      WHERE user_id = ?
-      ORDER BY start_date DESC
-    `;
-    const [visits] = await pool.query(query, [userId]);
-    
-    // 2. Fetch user info from Auth0
-    let userInfo = null;
+    let responseUser: any = { name: "User Data Not Available", user_id: userId };
+    let responseVisits: any[] = [];
+
     try {
       const accessToken = await createAccessToken();
-      const res = await fetch(`https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (res.ok) {
-        userInfo = await res.json();
+      const auth0Res = await fetch(
+        `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (auth0Res.ok) {
+        const userInfoFromAuth0 = await auth0Res.json();
+        responseUser = { ...responseUser, ...userInfoFromAuth0 };
       }
-    } catch (e) {
-      console.error(`Error fetching user ${userId}:`, e);
+    } catch (authError: any) {
+      // Log error or handle as needed, but continue to fetch visits
+      console.error(`Auth0 user fetch error for ${userId}: ${authError.message}`);
     }
-    
-    // 3. Attach user info to each visit
-    const visitsWithUser = Array.isArray(visits) ? visits.map((visit: any) => ({
-      ...visit,
-      user: userInfo || { name: 'Unknown' }
-    })) : [];
-    
-    return NextResponse.json(visitsWithUser);
+
+    try {
+      const visitsQuery = `
+        SELECT id, user_id, start_date, end_date
+        FROM visits
+        WHERE user_id = ?
+        ORDER BY start_date DESC
+      `;
+      const [dbVisitsResults] = await pool.query(visitsQuery, [userId]);
+
+      if (Array.isArray(dbVisitsResults)) {
+        responseVisits = dbVisitsResults.map((visit: any) => ({
+          ...visit,
+          user: responseUser,
+        }));
+      }
+    } catch (dbError: any) {
+      // Log error or handle as needed
+      console.error(`Database visits fetch error for ${userId}: ${dbError.message}`);
+    }
+
+    return NextResponse.json({
+      user: responseUser,
+      visits: responseVisits,
+    });
+
   } catch (error: any) {
-    console.error('Visits fetch error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error(`Top-level error for ${userId}: ${error.message}`);
+    return NextResponse.json({ error: "An unexpected server error occurred.", details: error.message }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { userId: string }}) {
-    try {
-      // Added authentication check
-      const session = await getSession();
-      if (!session || !session.user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-
-      const userId = params.userId;
-      const { startDate, endDate } = await request.json();
-  
-      const insertQuery = `
-        INSERT INTO visits (user_id, start_date, end_date)
-        VALUES (?, ?, ?)
-      `;
-      const [insertResult]: any = await pool.query(insertQuery, [userId, startDate, endDate]);
-  
-      return NextResponse.json({ visitId: insertResult.insertId });
-    } catch (error: any) {
-      console.error('Visits creation error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
+  const { userId } = params;
+  try {
+    const session = await getSession();
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { startDate, endDate } = await request.json();
+    if (!startDate) {
+        return NextResponse.json({ error: "Bad Request: startDate is required." }, { status: 400 });
+    }
+
+    const insertQuery = `
+      INSERT INTO visits (user_id, start_date, end_date)
+      VALUES (?, ?, ?)
+    `;
+    const [insertResult]: any = await pool.query(insertQuery, [userId, startDate, endDate]);
+
+    return NextResponse.json({ visitId: insertResult.insertId });
+  } catch (error: any) {
+    console.error(`Visit creation error for ${userId}: ${error.message}`);
+    return NextResponse.json({ error: "Failed to create visit.", details: error.message }, { status: 500 });
+  }
 }

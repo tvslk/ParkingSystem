@@ -7,11 +7,13 @@ import { useAuthStatus } from "../hooks/useAuthStatus";
 import { useDelayedReady } from "../hooks/useDelayedReady";
 import LoadingOverlay from "../components/LoadingOverlay";
 import UnauthorizedPage from "../unauthorized/page";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
 
 export default function UsersPage() {
+  const router = useRouter();
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
 
   const { data: usersData, error } = useSWR("/api/users", fetcher);
@@ -33,8 +35,16 @@ export default function UsersPage() {
   const headerTitle = "Users";
   const listWindowTitle = "List of all users";
 
-  const formatUser = (user: any) =>
-    `${user.name || "Unknown"} (${user.email || "No Email"})`;
+  const formatUser = (user: any) => {
+    return (
+      <div 
+        className="cursor-pointer hover:bg-gray-100 w-full px-2 -mx-2 rounded"
+        onClick={() => router.push(`/latest-visits/user/${user.user_id || user.id}`)}
+      >
+        {user.name || "Unknown"} ({user.email || "No Email"})
+      </div>
+    );
+  };
 
   return (
     isAdmin ? 
@@ -48,7 +58,7 @@ export default function UsersPage() {
           <div className="w-full mx-auto">
             <ListWindow
               title={listWindowTitle}
-              items={usersData}
+              items={usersData || []}
               formatItem={formatUser}
             />
           </div>
