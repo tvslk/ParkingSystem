@@ -14,26 +14,26 @@ export async function POST(request: NextRequest) {
 
     // 1) Check user_qr_codes for the provided qrCode
     const qrQuery = `
-      SELECT user_id, valid_from, valid_until
+      SELECT user_id, started_at, expires_at
       FROM user_qr_codes
       WHERE qr_code = ?
       LIMIT 1
     `;
     interface QrRow {
       user_id: number;
-      valid_from: string;
-      valid_until: string;
+      started_at: string;
+      expires_at: string;
     }
     const [qrRows] = await pool.query(qrQuery, [qrCode]);
     if ((qrRows as QrRow[]).length === 0) {
       return NextResponse.json({ error: 'QR code not found' }, { status: 404 });
     }
 
-    const { user_id, valid_from, valid_until } = (qrRows as QrRow[])[0];
+    const { user_id, started_at, expires_at } = (qrRows as QrRow[])[0];
 
     // 2) Validate timestamps
     const now = new Date();
-    if (now < new Date(valid_from) || now > new Date(valid_until)) {
+    if (now < new Date(started_at) || now > new Date(expires_at)) {
       return NextResponse.json({ error: 'QR code expired or not yet active' }, { status: 400 });
     }
 
