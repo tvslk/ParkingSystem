@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 import useSWR from "swr";
+import { useRouter } from "next/navigation";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
 import { useDelayedReady } from "../../hooks/useDelayedReady";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import UnauthorizedPage from "../../unauthorized/page";
-import InterfaceButton from "../../components/Buttons/InterfaceButtons";
 
 const fetcher = (url: string) =>
   fetch(url, { cache: "no-store" }).then((res) => res.json());
@@ -14,15 +14,17 @@ const fetcher = (url: string) =>
 const formatSpotId = (spotId: number | string) =>
   "PS" + spotId.toString().padStart(3, "0");
 
-const formatCustomDateTime = (dateString: string) => {
-  const d = new Date(dateString);
-  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}.${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-};
+function formatCustomDateTime(dateString: string): string {
+  const date = new Date(dateString);
+  return `${String(date.getDate()).padStart(2, '0')}.${String(
+    date.getMonth() + 1
+  ).padStart(2, '0')}.${date.getFullYear()} ${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes()
+  ).padStart(2, '0')}`;
+}
 
 export default function MobileLatestVisitsPage() {
+  const router = useRouter();
   const { user, isLoading, isAdmin, adminChecked } = useAuthStatus();
   const { data: visitsData, error } = useSWR(user ? "/api/latest-visits" : null, fetcher);
 
@@ -36,12 +38,12 @@ export default function MobileLatestVisitsPage() {
     return <LoadingOverlay />;
   }
 
-  if (error) {
-    return <div className="p-4 text-center">Error loading visits.</div>;
+  if (!user) {
+    return <UnauthorizedPage />;
   }
 
-    if (!user) {
-    return <UnauthorizedPage />;
+  if (error) {
+    return <div className="p-4 text-center">Error loading visits.</div>;
   }
 
   const headerTitle = "Latest parking spot updates";
@@ -64,10 +66,20 @@ export default function MobileLatestVisitsPage() {
                 visitsData.map((item: any, index: number) => (
                   <li
                     key={`${item.id || item.created_at}-${index}`}
-                    className={`py-2 border-b text-gray-500 ${index === 0 ? "border-t" : ""}`}
+                    className={`py-2 border-b text-gray-500 ${
+                      index === 0 ? "border-t" : ""
+                    } ${item.spot_id ? "active:bg-gray-200" : ""}`}
+                    onClick={() => {
+                      if (item.spot_id) {
+                        router.push(`/m/map/spot/${item.spot_id}`);
+                      }
+                    }}
                   >
-                    {formatCustomDateTime(item.created_at)} - {formatSpotId(item.spot_id)} -{" "}
-                    {item.availability === 1 ? "Departed" : "Arrived"}
+                    <span className="font-bold">{formatSpotId(item.spot_id)}</span>
+                    {" – "}
+                    {item.availability === 1 ? "Arrived" : "Departed"}
+                    {" – "}
+                    {formatCustomDateTime(item.created_at)}
                   </li>
                 ))
               ) : (
